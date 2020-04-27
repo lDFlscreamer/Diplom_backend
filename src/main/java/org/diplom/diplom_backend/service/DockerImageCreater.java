@@ -21,13 +21,13 @@ public class DockerImageCreater {
         return terminal.runCommandAndGetResult(terminalCommand);
     }
 
-    public String getImages() {
-        return terminal.runCommandAndGetResult(CommandConstant.IMAGES).toString();
+    public List<String> getImages() {
+        return terminal.runCommandAndGetResult(CommandConstant.IMAGES);
     }
 
-    public String runImage(String imageNameOrId,String initialCommand){
+    public List<String> runImage(String imageNameOrId, String initialCommand){
         String terminalCommand= MessageFormat.format(CommandConstant.RUN_IMAGE, imageNameOrId,initialCommand);
-        return terminal.runCommandAndGetResult(terminalCommand).toString();
+        return terminal.runCommandAndGetResult(terminalCommand);
 
     }
 }
