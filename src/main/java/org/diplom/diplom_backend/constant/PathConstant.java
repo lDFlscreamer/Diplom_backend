@@ -1,7 +1,13 @@
 package org.diplom.diplom_backend.constant;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+
 
 public class PathConstant {
-    public static String stringValue="/home/screamer/Desktop/python_test/dockerFile/";
+
+    public static String path="/home/screamer/Desktop/diplom/";
+    public static String DockerfileFolderName="Dockerfile/";
+    public static String ProjectFolderName="Project/";
+    public static String UserResourcesFolderName ="User/";
 }

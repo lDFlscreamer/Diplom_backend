@@ -2,74 +2,96 @@ package org.diplom.diplom_backend.service;
 
 import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.constant.PathConstant;
-import org.diplom.diplom_backend.entity.Language;
-import org.diplom.diplom_backend.repository.LanguageRepository;
+import org.diplom.diplom_backend.entity.BuildStage;
+import org.diplom.diplom_backend.entity.Project;
+import org.diplom.diplom_backend.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.MessageFormat;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DockerfileBuilder {
     //todo:add logger
     @Autowired
-    private LanguageRepository languageRepository;
-    public boolean createDockerfile(String filename,String languageName, String mainClass, String projectPath) throws Exception{
-        //todo:filename - projectName@UserName
-        StringBuilder dockerFileContent = createDockerfileContent(languageName, mainClass, projectPath);
-        return writeTofile(filename,dockerFileContent);
+    private ImageRepository imageRepository;
+
+    public boolean createDockerfile(String filename, Project project) throws Exception {
+        //todo:filename - projectName@UserID
+        StringBuilder dockerFileContent = createDockerfileContent(project);
+        return writeTofile(filename, dockerFileContent);
     }
 
-    public StringBuilder createDockerfileContent(String languageName, String mainClass, String projectPath) throws Exception {
-        StringBuilder dockerFile = new StringBuilder();
-        Optional<Language> languageOptional = languageRepository.findByName(languageName);
-        Language language;
-        if (languageOptional.isPresent()) {
-            language = languageOptional.get();
-        } else {
-            //todo: write a exception;
-            throw new Exception();
-        }
-        //uses base image
-        String baseImage = language.getBaseImage();
-        dockerFile.append(MessageFormat.format("FROM {0}", baseImage)).append(GeneralConstants.NEWLINE);
-        //set work directory
-        dockerFile.append("WORKDIR  /usr/src/myapp").append(GeneralConstants.NEWLINE);
-        //move source file
-        String copySrcFile = MessageFormat.format("COPY . ./src ", projectPath).concat(GeneralConstants.NEWLINE);
-        dockerFile.append(copySrcFile);
-        if (language.getCompileCommand() != null) {
+    public StringBuilder createDockerfileContent(Project project) throws Exception {
+        //todo:add user
+        StringBuilder dockerFileContent = new StringBuilder();
+        boolean isInitialized = false;
+        String previousImageId = null;
+        int imageCounter = 0;
+        int i = 0;
 
-            dockerFile.append("RUN mkdir bin").append(GeneralConstants.NEWLINE);
-            String mainClassLocalPath = mainClass.replace(".", "/");
-            String compileCommand = "RUN  ".concat(MessageFormat.format(language.getCompileCommand(), "src".concat("/").concat(mainClassLocalPath)));
-            dockerFile.append(compileCommand).append(GeneralConstants.NEWLINE);
-        } else {
-            mainClass = mainClass.replace(".", "/");
+        for (BuildStage stage : project.getBuildStages()) {
+            String line;
+            if (!stage.getImage().getId().equals(previousImageId)) {
+                line = MessageFormat.format("FROM {0}:{1}", stage.getImage().getImageName(), stage.getVersion() != null ? stage.getVersion() : "latest");
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE)
+                        .append(MessageFormat.format("WORKDIR  /usr/src/{0}",project.getProjectName())).append(GeneralConstants.NEWLINE);
+                if (previousImageId != null) {
+                    line = MessageFormat.format("COPY --from={1} /usr/src/{0} .", project.getProjectName(), imageCounter);
+                    dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                }
+            }
+            if (!isInitialized) {
+                line = MessageFormat.format("COPY ./{1}{0} . ", project.getProjectName(), PathConstant.ProjectFolderName);
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                isInitialized = true;
+            }
 
+            //integrate commands
+            int j = 0;
+            for (String command : stage.getCommand()) {
+                line = "RUN {0}";
+                line = MessageFormat.format(line, command.replace("${mainClass}", project.getMainClass()));
+                if ((i == (project.getBuildStages().size() - 1)) && j == (stage.getCommand().size() - 1)) {
+                    line = line.replace("RUN", "CMD");
+                }
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                j++;
+            }
+
+
+            previousImageId = stage.getImage().getId();
+            i++;
         }
-        /*
-            run application
-         */
-        String executeCommand = "CMD  ".concat(MessageFormat.format(language.getExecuteCommand(), mainClass));
-        dockerFile.append(executeCommand).append(GeneralConstants.NEWLINE);
-        return dockerFile;
+
+        return dockerFileContent;
     }
 
     public boolean writeTofile(String filename, StringBuilder dockerfileContent) {
-        File myObj = new File(PathConstant.stringValue.concat(filename));
+
+        File myObj = new File(PathConstant.path.concat(PathConstant.DockerfileFolderName).concat(filename));
+        if (myObj.exists()) {
+
+            try (FileReader in = new FileReader(myObj); BufferedReader reader = new BufferedReader(in)) {
+                String contentInFile = reader.lines().collect(Collectors.joining(GeneralConstants.NEWLINE));
+                if (contentInFile.equals(dockerfileContent.toString())) {
+                    return true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
             myObj.createNewFile();
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(myObj))) {
-                writer.write(dockerfileContent.toString());
-            }
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(myObj))) {
+            writer.write(dockerfileContent.toString());
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

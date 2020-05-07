@@ -16,23 +16,20 @@ public class Terminal {
     Process runCommand(String command) throws IOException {
         return runtime.exec(command);
     }
-    List<String> runCommandAndGetResult(String command) {
+
+    List<String> getOutputFromProcess(Process p) {
         List<String> stdout = null;
-        List<String> err ;
-        try {
-            Process p = this.runCommand(command);
+        List<String> err = new ArrayList<>();
 
-            stdout = new BufferedReader(new InputStreamReader(p.getInputStream()))
-                    .lines().collect(Collectors.toList());
-            err = new BufferedReader(new InputStreamReader(p.getErrorStream()))
-                    .lines().collect(Collectors.toList());
+        stdout = new BufferedReader(new InputStreamReader(p.getInputStream()))
+                .lines().collect(Collectors.toList());
+        err.addAll(new BufferedReader(new InputStreamReader(p.getErrorStream()))
+                .lines().collect(Collectors.toList()));
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            err= new ArrayList<>();
-            err.add(e.getMessage());
+
+        if (!err.isEmpty()) {
+            stdout.addAll(err);
         }
-
-        return  err.isEmpty() ? stdout : err;
+        return stdout;
     }
 }

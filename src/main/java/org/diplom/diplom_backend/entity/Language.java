@@ -1,42 +1,33 @@
 package org.diplom.diplom_backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import org.diplom.diplom_backend.constant.LanguageConstant;
 import org.springframework.data.annotation.Id;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Language {
     @Id
-    private  String id;
-    private String name;
-    @Getter(AccessLevel.PUBLIC)
-    @Setter(AccessLevel.PUBLIC)
-    private String baseImage;
-    private String executeCommand;
-    private String compileCommand;
+    String id;
+    String language;
+    List<String> images;
 
     public Language() {
         this.id= UUID.randomUUID().toString();
     }
 
-    public Language(String name, String baseImage, String executeCommand) {
+    public Language(LanguageConstant language, List<Image> images) {
         this();
-        this.name = name;
-        this.baseImage = baseImage;
-        this.executeCommand = executeCommand;
+        this.language = language.toString();
+        this.images = images.stream().map(Image::getId).collect(Collectors.toList());
     }
 
-    public Language(String name, String baseImage, String executeCommand,  String compileCommand) {
+    public Language(String language, List<Image> images) {
         this();
-        this.name = name;
-        this.baseImage = baseImage;
-        this.executeCommand = executeCommand;
-        this.compileCommand = compileCommand;
+        this.language = language;
+        this.images = images.stream().map(Image::getId).collect(Collectors.toList());
     }
 }
