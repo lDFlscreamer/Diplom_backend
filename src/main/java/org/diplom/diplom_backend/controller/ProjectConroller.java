@@ -1,5 +1,6 @@
 package org.diplom.diplom_backend.controller;
 
+import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.entity.Project;
 import org.diplom.diplom_backend.repository.ProjectRepository;
 import org.diplom.diplom_backend.service.ProjectDetailFinder;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -58,8 +60,10 @@ public class ProjectConroller {
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
         String runCommand=null;
-        projectLauncher.lounchProject(projectId,userLogin,runCommand);
-        return projectLauncher.getOutPutFromProject(projectId,userLogin);
+        List<String> strings = projectLauncher.lounchProject(projectId, userLogin, runCommand);
+        strings.add(projectLauncher.getOutPutFromProject(projectId,userLogin));
+        //todo write right
+        return String.join(GeneralConstants.SPACE,strings);
     }
 
     @PostMapping(value = "/stop",
@@ -68,13 +72,12 @@ public class ProjectConroller {
     )
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public String stopLaunchedProject(
-            @RequestBody Map<String, Object> args) throws Exception {
+            @RequestBody Map<String, Object> args) throws NoSuchElementException {
         Object projectIdObj = args.get("projectId");
         Object userLoginObj = args.get("userLogin");
 
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
-        String runCommand=null;
        return projectLauncher.stopProject(projectId,userLogin)?"DONE":"FAIL";
     }
 
@@ -84,13 +87,12 @@ public class ProjectConroller {
     )
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public Map<Integer, Integer> PortLaunchedProject(
-            @RequestBody Map<String, Object> args) throws Exception {
+            @RequestBody Map<String, Object> args) throws NoSuchElementException {
         Object projectIdObj = args.get("projectId");
         Object userLoginObj = args.get("userLogin");
 
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
-        String runCommand=null;
         return projectDetailFinder.getPortData(projectId,userLogin);
     }
 
@@ -100,7 +102,7 @@ public class ProjectConroller {
     )
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public String outPutProject(
-            @RequestBody Map<String, Object> args) throws Exception {
+            @RequestBody Map<String, Object> args) throws NoSuchElementException {
         Object projectIdObj = args.get("projectId");
         Object userLoginObj = args.get("userLogin");
 
@@ -115,7 +117,7 @@ public class ProjectConroller {
     )
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public boolean inPutProject(
-            @RequestBody Map<String, Object> args) throws Exception {
+            @RequestBody Map<String, Object> args) throws NoSuchElementException {
         Object projectIdObj = args.get("projectId");
         Object userLoginObj = args.get("userLogin");
         Object inputObj = args.get("input");

@@ -84,7 +84,7 @@ public class ProjectLauncher {
 
         try {
             stdin.write(input.concat(GeneralConstants.NEWLINE).getBytes());
-            stdin.close();
+            stdin.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
