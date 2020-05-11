@@ -18,16 +18,17 @@ public class DockerfileBuilder {
     @Autowired
     private ImageRepository imageRepository;
 
-    public boolean createDockerfile(String filename, Project project) throws Exception {
+    public boolean createDockerfile(String filename, Project project) {
         //todo:filename - projectName@UserID
         StringBuilder dockerFileContent = createDockerfileContent(project);
         return writeTofile(filename, dockerFileContent);
     }
 
-    public StringBuilder createDockerfileContent(Project project) throws Exception {
+    public StringBuilder createDockerfileContent(Project project) {
         //todo:add user
         StringBuilder dockerFileContent = new StringBuilder();
         boolean isInitialized = false;
+        boolean hasExposedPort = false;
         String previousImageId = null;
         int imageCounter = 0;
         int i = 0;
@@ -53,15 +54,20 @@ public class DockerfileBuilder {
             int j = 0;
             for (String command : stage.getCommand()) {
                 line = "RUN {0}";
-                line = MessageFormat.format(line, command.replace("${mainClass}", project.getMainClass()));
+                line = MessageFormat.format(line, command.replace("${mainClass}", project.getMainClass())).replace("${projectName}",project.getProjectName());
                 if ((i == (project.getBuildStages().size() - 1)) && j == (stage.getCommand().size() - 1)) {
-                    line = line.replace("RUN", "CMD");
+                    if(project.getPorts()!=null && !project.getPorts().isEmpty()){
+                        for (Integer port :
+                                project.getPorts()) {
+                            dockerFileContent.append(MessageFormat.format("EXPOSE {0}", port.toString())).append(GeneralConstants.NEWLINE);
+                        }
+                        hasExposedPort=true;
+                    }
+                    line = line.replace("RUN", hasExposedPort?"ENTRYPOINT":"CMD");
                 }
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 j++;
             }
-
-
             previousImageId = stage.getImage().getId();
             i++;
         }

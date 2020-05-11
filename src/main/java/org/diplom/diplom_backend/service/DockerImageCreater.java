@@ -5,8 +5,9 @@ import org.diplom.diplom_backend.constant.DockerCommandConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.io.*;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class DockerImageCreater {
         try {
             process = terminal.runCommand(terminalCommand);
             terminal.runCommand(DockerCommandConstant.REMOVE_EXTRA_CONTAINER);
-            String extraImages = terminal.getOutputFromProcess(terminal.runCommand("docker images --filter dangling=true -q --no-trunc")).stream().reduce((s, s2) -> s.concat(" ").concat(s2)).orElse("");
+            String extraImages = terminal.getOutputFromProcess(terminal.runCommand(DockerCommandConstant.GET_LIST_OF_EXTRA_IMAGE)).stream().reduce((s, s2) -> s.concat(" ").concat(s2)).orElse("");
             if (!extraImages.equals("")) {
                 terminal.runCommand(MessageFormat.format(DockerCommandConstant.REMOVE_EXTRA_IMAGE, extraImages));
             }
@@ -46,7 +47,7 @@ public class DockerImageCreater {
         return terminal.getOutputFromProcess(process);
     }
 
-    public List<String> runImage(String imageNameOrId, String initialCommand) {
+    public Process runImage(String imageNameOrId, String initialCommand) {
         Process process = null;
         String terminalCommand = MessageFormat.format(DockerCommandConstant.RUN_IMAGE, imageNameOrId, initialCommand == null ? "" : initialCommand);
 
@@ -57,7 +58,8 @@ public class DockerImageCreater {
             // TODO: 5/7/20 exception
             return null;
         }
-        return terminal.getOutputFromProcess(process);
 
+
+        return process;
     }
 }

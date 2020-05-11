@@ -15,6 +15,7 @@ public class Project {
     private String projectName;
     private String mainClass;
     private List<BuildStage> buildStages;
+    private List<Integer> ports;
 
     public Project() {
         this.id= UUID.randomUUID().toString();
@@ -25,5 +26,13 @@ public class Project {
         this.projectName = projectName;
         this.mainClass = mainClass;
         this.buildStages = buildStages;
+    }
+
+    public Project(String projectName, String mainClass, List<BuildStage> buildStages, List<Integer> ports) {
+        this();
+        this.projectName = projectName;
+        this.mainClass = mainClass;
+        this.buildStages = buildStages;
+        this.ports = ports;
     }
 }

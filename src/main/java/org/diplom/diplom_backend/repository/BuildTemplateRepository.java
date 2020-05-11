@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface BuildTemplateRepository extends MongoRepository<BuildTemplate, String> {
-    Optional<Project> findAllById(String id);
-    Iterable<Project> findByLanguage(String language);
+    Optional<BuildTemplate> findAllById(String id);
+    Iterable<BuildTemplate> findByLanguage(String language);
 }
