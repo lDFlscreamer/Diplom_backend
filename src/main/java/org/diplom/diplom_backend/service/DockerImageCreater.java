@@ -22,11 +22,6 @@ public class DockerImageCreater {
         String terminalCommand = MessageFormat.format(DockerCommandConstant.CREATE_IMAGE, name, dockerfilePath, projectPath);
         try {
             process = terminal.runCommand(terminalCommand);
-            terminal.runCommand(DockerCommandConstant.REMOVE_EXTRA_CONTAINER);
-            String extraImages = terminal.getOutputFromProcess(terminal.runCommand(DockerCommandConstant.GET_LIST_OF_EXTRA_IMAGE)).stream().reduce((s, s2) -> s.concat(" ").concat(s2)).orElse("");
-            if (!extraImages.equals("")) {
-                terminal.runCommand(MessageFormat.format(DockerCommandConstant.REMOVE_EXTRA_IMAGE, extraImages));
-            }
         } catch (IOException e) {
             e.printStackTrace();
             // TODO: 5/7/20 exception

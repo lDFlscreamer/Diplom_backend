@@ -46,11 +46,10 @@ public class ProjectLauncher {
         Project project = projectDao.getProjectById(projectId);
         String imageName = converter.getImageName(project,userLogin);
         Process process = launchedProjects.get(imageName);
-        if (process == null) {
+        if (process == null ) {
             //todo exception
             return "not runned";
         }
-        OutputStream stdin = process.getOutputStream();
         InputStream stderr = process.getErrorStream();
         InputStream stdout = process.getInputStream();
 
@@ -67,6 +66,25 @@ public class ProjectLauncher {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        try {
+            int lastValue = 0;
+            while (lastValue != stderr.available()) {
+                for (int i = stderr.available(); i > 0; i--) {
+                    result.append((char) stderr.read());
+                }
+                lastValue=stderr.available();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(result.length()==0 && !process.isAlive()){
+
+            String lastOutput = "end with" + process.exitValue();
+            this.terminateProcess(imageName);
+            return lastOutput;
+
+        }
         return result.toString();
     }
 
@@ -79,8 +97,6 @@ public class ProjectLauncher {
             return false;
         }
         OutputStream stdin = process.getOutputStream();
-        InputStream stderr = process.getErrorStream();
-        InputStream stdout = process.getInputStream();
 
         try {
             stdin.write(input.concat(GeneralConstants.NEWLINE).getBytes());

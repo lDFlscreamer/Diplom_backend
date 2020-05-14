@@ -8,11 +8,15 @@ import org.diplom.diplom_backend.repository.ImageRepository;
 import org.diplom.diplom_backend.repository.LanguageRepository;
 import org.diplom.diplom_backend.repository.ProjectRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -20,23 +24,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
+@EnableScheduling
 public class Application {
+    private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
-    //todo:add logger
     @Autowired
-    ImageRepository imageRepository;
+    private ImageRepository imageRepository;
     @Autowired
-    LanguageRepository languageRepository;
+    private LanguageRepository languageRepository;
     @Autowired
-    ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
     @Autowired
-    BuildTemplateRepository buildTemplateRepository;
+    private BuildTemplateRepository buildTemplateRepository;
 
 
     public static void main(String[] args) {
 
         SpringApplication app = new SpringApplication(Application.class);
         app.run(args);
+        logger.info("start");
     }
 
     @Bean
@@ -64,7 +70,7 @@ public class Application {
                 version.add("9");
                 version.add("8");
                 version.add("7");
-                Image java = new Image("openjdk", version, "java -classpath ./bin ${mainClass}", "javac -sourcepath ./src -d bin $(echo ${mainClass} | tr / .).java");
+                Image java = new Image("openjdk", version, "java -cp ./target ${mainClass}", "javac -sourcepath ./src -d target $(echo ${mainClass} | tr / .).java");
                 //create python Image
                 version = new ArrayList<>();
                 version.add("3");
@@ -121,7 +127,7 @@ public class Application {
                 //java
                 List<BuildStage> buildStages = new ArrayList<>();
                 List<String> commands = new ArrayList<>();
-                commands.add("mkdir bin");
+                commands.add("mkdir target");
                 commands.add(java.getCompileCommand());
                 buildStages.add(new BuildStage(java, java.getImageVersion().get(0), commands));
                 commands = new ArrayList<>();
@@ -165,11 +171,13 @@ public class Application {
                  * //todo:delete on production
                  * */
                 Project helloWord = new Project("helloWord", "Main", javaApplication.getStages());
+                Project pythonInput = new Project("pythonInput", "main", pythonApplication.getStages());
                 ArrayList<Integer> ports = new ArrayList<>();
                 ports.add(8080);
-                Project mavenWord = new Project("test", "org/test/Application", mavenApplication.getStages(),ports);
+                Project mavenWord = new Project("test", "org/test/Application", mavenApplication.getStages(), ports);
                 projectRepository.save(helloWord);
                 projectRepository.save(mavenWord);
+                projectRepository.save(pythonInput);
             }
 
             /*
@@ -183,19 +191,19 @@ public class Application {
     }
 
 
-    boolean createFolder(String path) {
+    boolean createFolder(String path) throws IllegalAccessException {
         File folder = new File(path);
         if (!folder.exists()) {
             if (!folder.mkdirs()) {
-                //todo:write exception
-                System.out.println(MessageFormat.format("folder can`t be created {0}", PathConstant.path));
-                return false;
+                String message = String.format("folder can`t be created %s", PathConstant.path);
+                logger.error(message);
+                throw new IllegalAccessException(message);
             }
         }
         if (!folder.isDirectory()) {
-            //todo:write exception
-            System.out.println(MessageFormat.format("folder is not a directory {0} ", PathConstant.path));
-            return false;
+            String message = String.format("folder is not a directory %s ", PathConstant.path);
+            logger.error(message);
+            throw new IllegalAccessException(message);
         }
         return true;
     }

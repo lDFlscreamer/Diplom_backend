@@ -4,6 +4,8 @@ import org.diplom.diplom_backend.constant.DockerCommandConstant;
 import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.entity.Project;
 import org.diplom.diplom_backend.service.Dao.ProjectDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class ProjectDetailFinder {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectDetailFinder .class);
+
     @Autowired
     Terminal terminal;
     @Autowired
@@ -34,8 +38,7 @@ public class ProjectDetailFinder {
             String containerID = String.join(GeneralConstants.SPACE, terminal.getOutputFromProcess(process));
             process = terminal.runCommand(MessageFormat.format(DockerCommandConstant.GET_PORT_INFORMATION_BY_IMAGE_NAME, containerID));
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO: 5/7/20 exception
+            logger.warn(String.format("can`t get port information about runed %s_%s ",projectId,userLogin),e);
             return null;
         }
         List<String> result = terminal.getOutputFromProcess(process);
@@ -58,7 +61,6 @@ public class ProjectDetailFinder {
                     port = m.group(1);
                     localPort = m2.group(1);
                 } catch (RuntimeException e) {
-                    // TODO: 5/11/20 logger
                     continue;
                 }
                 portMap.put(Integer.parseInt(localPort), Integer.parseInt(port));

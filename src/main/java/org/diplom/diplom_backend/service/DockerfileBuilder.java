@@ -19,13 +19,12 @@ public class DockerfileBuilder {
     private ImageRepository imageRepository;
 
     public boolean createDockerfile(String filename, Project project) {
-        //todo:filename - projectName@UserID
         StringBuilder dockerFileContent = createDockerfileContent(project);
         return writeTofile(filename, dockerFileContent);
     }
 
     public StringBuilder createDockerfileContent(Project project) {
-        //todo:add user
+        //todo:add user part
         StringBuilder dockerFileContent = new StringBuilder();
         boolean isInitialized = false;
         boolean hasExposedPort = false;

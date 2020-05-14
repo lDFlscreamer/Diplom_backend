@@ -63,7 +63,7 @@ public class ProjectConroller {
         List<String> strings = projectLauncher.lounchProject(projectId, userLogin, runCommand);
         strings.add(projectLauncher.getOutPutFromProject(projectId,userLogin));
         //todo write right
-        return String.join(GeneralConstants.SPACE,strings);
+        return String.join(GeneralConstants.NEWLINE,strings);
     }
 
     @PostMapping(value = "/stop",
