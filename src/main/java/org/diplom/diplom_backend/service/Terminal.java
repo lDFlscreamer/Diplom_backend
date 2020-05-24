@@ -14,11 +14,12 @@ import java.util.stream.Collectors;
 public class Terminal {
     Runtime runtime = Runtime.getRuntime();
 
-    Process runCommand(String command) throws IOException {
+    public Process runCommand(String command) throws IOException {
         return runtime.exec(command);
     }
 
-    List<String> getOutputFromProcess(Process p) {
+    public List<String> getOutputFromProcess(Process p) {
+        // TODO: 5/24/20 rewrite
         List<String> stdout = null;
         List<String> err = new ArrayList<>();
 

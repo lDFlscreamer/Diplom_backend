@@ -60,10 +60,7 @@ public class ProjectConroller {
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
         String runCommand=null;
-        List<String> strings = projectLauncher.lounchProject(projectId, userLogin, runCommand);
-        strings.add(projectLauncher.getOutPutFromProject(projectId,userLogin));
-        //todo write right
-        return String.join(GeneralConstants.NEWLINE,strings);
+        return projectLauncher.lounchProject(projectId, userLogin, runCommand);
     }
 
     @PostMapping(value = "/stop",
@@ -96,20 +93,7 @@ public class ProjectConroller {
         return projectDetailFinder.getPortData(projectId,userLogin);
     }
 
-    @PostMapping(value = "/outPut",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public String outPutProject(
-            @RequestBody Map<String, Object> args) throws NoSuchElementException {
-        Object projectIdObj = args.get("projectId");
-        Object userLoginObj = args.get("userLogin");
 
-        String projectId = projectIdObj.toString();
-        String userLogin = userLoginObj.toString();
-        return projectLauncher.getOutPutFromProject(projectId,userLogin);
-    }
 
     @PostMapping(value = "/inPut",
             consumes = MediaType.APPLICATION_JSON_VALUE,
