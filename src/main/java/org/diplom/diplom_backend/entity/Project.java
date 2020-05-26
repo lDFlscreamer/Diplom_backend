@@ -1,6 +1,7 @@
 package org.diplom.diplom_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Project {
     @Id

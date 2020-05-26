@@ -1,10 +1,13 @@
 package org.diplom.diplom_backend.service;
 
+import org.diplom.diplom_backend.Application;
 import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.constant.PathConstant;
 import org.diplom.diplom_backend.entity.BuildStage;
 import org.diplom.diplom_backend.entity.Project;
 import org.diplom.diplom_backend.repository.ImageRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +17,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class DockerfileBuilder {
-    //todo:add logger
+    private static final Logger logger = LoggerFactory.getLogger(DockerfileBuilder.class);
     @Autowired
-    private ImageRepository imageRepository;
+    private PathConstant pathConstant;
 
-    public boolean createDockerfile(String filename, Project project) {
-        StringBuilder dockerFileContent = createDockerfileContent(project);
-        return writeTofile(filename, dockerFileContent);
+    public void createDockerfile(String filename, Project project,String login) throws IOException {
+        StringBuilder dockerFileContent = createDockerfileContent(project,login);
+        writeTofile(filename, dockerFileContent);
     }
 
-    public StringBuilder createDockerfileContent(Project project) {
+    public StringBuilder createDockerfileContent(Project project,String login) {
         //todo:add user part
         StringBuilder dockerFileContent = new StringBuilder();
         boolean isInitialized = false;
@@ -44,7 +47,7 @@ public class DockerfileBuilder {
                 }
             }
             if (!isInitialized) {
-                line = MessageFormat.format("COPY ./{1}{0} . ", project.getProjectName(), PathConstant.ProjectFolderName);
+                line = MessageFormat.format("COPY ./{1}{0} . ", project.getProjectName(), pathConstant.getProjectFolderName());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 isInitialized = true;
             }
@@ -70,37 +73,35 @@ public class DockerfileBuilder {
             previousImageId = stage.getImage().getId();
             i++;
         }
-
+        logger.debug(MessageFormat.format("created dockerfile for project where name is {0}  and user where login is {1}",project.getProjectName(),login));
         return dockerFileContent;
     }
 
-    public boolean writeTofile(String filename, StringBuilder dockerfileContent) {
+    public void writeTofile(String filename, StringBuilder dockerfileContent) throws IOException {
 
-        File myObj = new File(PathConstant.path.concat(PathConstant.DockerfileFolderName).concat(filename));
-        if (myObj.exists()) {
+        String path = pathConstant.getPath().concat(pathConstant.getDockerfileFolderName()).concat(filename);
+        File dockerFile = new File(path);
+        if (dockerFile.exists()) {
 
-            try (FileReader in = new FileReader(myObj); BufferedReader reader = new BufferedReader(in)) {
+            try (FileReader in = new FileReader(dockerFile); BufferedReader reader = new BufferedReader(in)) {
                 String contentInFile = reader.lines().collect(Collectors.joining(GeneralConstants.NEWLINE));
                 if (contentInFile.equals(dockerfileContent.toString())) {
-                    return true;
+                    return ;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warn(MessageFormat.format("cant read file  {0}",path),e);
             }
         }
-
         try {
-            myObj.createNewFile();
+            dockerFile.createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(MessageFormat.format("cant create file  {0}",path),e);
         }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(myObj))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(dockerFile))) {
             writer.write(dockerfileContent.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(MessageFormat.format("cant write to file  {0}",path),e);
+            throw e;
         }
-
-
-        return true;
     }
 }

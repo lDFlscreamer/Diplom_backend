@@ -19,20 +19,16 @@ public class Terminal {
     }
 
     public List<String> getOutputFromProcess(Process p) {
-        // TODO: 5/24/20 rewrite
-        List<String> stdout = null;
-        List<String> err = new ArrayList<>();
-
+        List<String> stdout;
         stdout = new BufferedReader(new InputStreamReader(p.getInputStream()))
                 .lines().collect(Collectors.toList());
-        err.addAll(new BufferedReader(new InputStreamReader(p.getErrorStream()))
-                .lines().collect(Collectors.toList()));
-
-
-        if (!err.isEmpty()) {
-            stdout.addAll(err);
-        }
         return stdout;
+    }
+    public List<String> getErrorFromProcess(Process p) {
+        List<String> stderr;
+        stderr = new BufferedReader(new InputStreamReader(p.getErrorStream()))
+                .lines().collect(Collectors.toList());
+        return stderr;
     }
 
 

@@ -1,7 +1,7 @@
 package org.diplom.diplom_backend.service;
 
-import org.diplom.diplom_backend.Application;
 import org.diplom.diplom_backend.constant.DockerCommandConstant;
+import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class DockerCleaner {
        logger.info("Docker clean extra image");
         try {
             String extraImages = terminal.getOutputFromProcess(terminal.runCommand(DockerCommandConstant.GET_LIST_OF_EXTRA_IMAGE)).stream().reduce((s, s2) -> s.concat(" ").concat(s2)).orElse("");
-            if (!extraImages.equals("")) {
+            if (!extraImages.equals(GeneralConstants.EMPTY)) {
                 terminal.runCommand(MessageFormat.format(DockerCommandConstant.REMOVE_IMAGE, extraImages));
             }
         }catch (IOException e){

@@ -1,8 +1,8 @@
 package org.diplom.diplom_backend.controller;
 
-import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.entity.Project;
 import org.diplom.diplom_backend.repository.ProjectRepository;
+import org.diplom.diplom_backend.service.Dao.ProjectDao;
 import org.diplom.diplom_backend.service.ProjectDetailFinder;
 import org.diplom.diplom_backend.service.ProjectLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,25 +16,28 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value ="/project")
+@RequestMapping(value = "/project")
 public class ProjectConroller {
     @Autowired
     ProjectRepository projectRepository;
     @Autowired
     private ProjectLauncher projectLauncher;
     @Autowired
+    private ProjectDao projectDao;
+    @Autowired
     private ProjectDetailFinder projectDetailFinder;
 
 
     @GetMapping(value = "/{Name}")
     @ResponseStatus(value = HttpStatus.FOUND)
-    public Project getProjectByName(@PathVariable("Name") String name){
+    public Project getProjectByName(@PathVariable("Name") String name) {
         Optional<Project> byProjectName = projectRepository.findByProjectName(name);
         return byProjectName.orElse(null);
     }
+
     @GetMapping
     @ResponseStatus(value = HttpStatus.FOUND)
-    public List<Project> findAll(){
+    public List<Project> findAll() {
         return projectRepository.findAll();
     }
 
@@ -42,7 +45,7 @@ public class ProjectConroller {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Project createProject(@RequestBody Project project){
+    public Project createProject(@RequestBody Project project) {
         Optional<Project> byProjectNameAndMainClass = projectRepository.findByProjectNameAndMainClass(project.getProjectName(), project.getMainClass());
         return byProjectNameAndMainClass.orElseGet(() -> projectRepository.save(project));
     }
@@ -53,14 +56,16 @@ public class ProjectConroller {
     )
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public String executeProject(
-            @RequestBody Map<String, Object> args) throws Exception {
+            @RequestBody Map<String, Object> args) {
         Object projectIdObj = args.get("projectId");
         Object userLoginObj = args.get("userLogin");
+        Object runCommandObj = args.get("runCommand");
 
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
-        String runCommand=null;
-        return projectLauncher.lounchProject(projectId, userLogin, runCommand);
+
+        Project project = projectDao.getProjectById(projectId);
+        return projectLauncher.launchProject(project, userLogin, runCommandObj==null?null:runCommandObj.toString());
     }
 
     @PostMapping(value = "/stop",
@@ -75,7 +80,10 @@ public class ProjectConroller {
 
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
-       return projectLauncher.stopProject(projectId,userLogin)?"DONE":"FAIL";
+
+        Project project = projectDao.getProjectById(projectId);
+
+        return projectLauncher.stopProject(project, userLogin) ? "DONE" : "FAIL";
     }
 
     @PostMapping(value = "/port",
@@ -90,9 +98,8 @@ public class ProjectConroller {
 
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
-        return projectDetailFinder.getPortData(projectId,userLogin);
+        return projectDetailFinder.getPortData(projectId, userLogin);
     }
-
 
 
     @PostMapping(value = "/inPut",
@@ -109,6 +116,6 @@ public class ProjectConroller {
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
         String input = inputObj.toString();
-        return projectLauncher.inputInProject(projectId,userLogin,input);
+        return projectLauncher.inputInProject(projectId, userLogin, input);
     }
 }

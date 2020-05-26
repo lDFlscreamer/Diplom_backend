@@ -12,4 +12,5 @@ public class GeneralConstants {
     public static final String OPEN_CURLY_BRACE = "{";
     public static final String CLOSE_CURLY_BRACE = "}";
     public static final String NEWLINE = "\n";
+    public static final String SLASH = "/";
 }

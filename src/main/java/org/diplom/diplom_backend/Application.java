@@ -29,6 +29,8 @@ public class Application {
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     @Autowired
+    private PathConstant pathConstant;
+    @Autowired
     private ImageRepository imageRepository;
     @Autowired
     private LanguageRepository languageRepository;
@@ -182,10 +184,10 @@ public class Application {
             /*
              * validate path to work directory
              * */
-            createFolder(PathConstant.path);
-            createFolder(PathConstant.path.concat(PathConstant.DockerfileFolderName));
-            createFolder(PathConstant.path.concat(PathConstant.ProjectFolderName));
-            createFolder(PathConstant.path.concat(PathConstant.UserResourcesFolderName));
+            createFolder(pathConstant.getPath());
+            createFolder(pathConstant.getPath().concat(pathConstant.getDockerfileFolderName()));
+            createFolder(pathConstant.getPath().concat(pathConstant.getProjectFolderName()));
+            createFolder(pathConstant.getPath().concat(pathConstant.getUserResourcesFolderName()));
         };
     }
 
@@ -194,13 +196,13 @@ public class Application {
         File folder = new File(path);
         if (!folder.exists()) {
             if (!folder.mkdirs()) {
-                String message = String.format("folder can`t be created %s", PathConstant.path);
+                String message = String.format("folder can`t be created %s", path);
                 logger.error(message);
                 throw new IllegalAccessException(message);
             }
         }
         if (!folder.isDirectory()) {
-            String message = String.format("folder is not a directory %s ", PathConstant.path);
+            String message = String.format("folder is not a directory %s ", path);
             logger.error(message);
             throw new IllegalAccessException(message);
         }

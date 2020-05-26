@@ -4,11 +4,14 @@ import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.constant.PathConstant;
 import org.diplom.diplom_backend.entity.Project;
 import org.diplom.diplom_backend.service.Dao.ProjectDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +19,11 @@ import java.util.NoSuchElementException;
 
 @Service
 public class ProjectLauncher {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectLauncher.class);
+
     private HashMap<String, Process> launchedProjects = new HashMap<>();
-    // TODO: 5/24/20 logger
+    @Autowired
+    private PathConstant pathConstant;
     @Autowired
     private WebSocketWritter webSocketWritter;
     @Autowired
@@ -41,6 +47,7 @@ public class ProjectLauncher {
         if (process != null) {
             process.destroy();
             launchedProjects.remove(imageName);
+            logger.info(MessageFormat.format("launched project with imageName  {0}  is terminated", imageName));
         }
     }
 
@@ -49,40 +56,40 @@ public class ProjectLauncher {
         String imageName = converter.getImageName(project, userLogin);
         Process process = launchedProjects.get(imageName);
         if (process == null) {
-            //todo exception
+            logger.warn(MessageFormat.format("project with imageName  {0}  is not launched", imageName));
             return false;
         }
         OutputStream stdin = process.getOutputStream();
-
         try {
             stdin.write(input.concat(GeneralConstants.NEWLINE).getBytes());
             stdin.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn(MessageFormat.format("can`t  write into input stream of launched project with ImageName {0} ", imageName), e);
         }
         return true;
     }
 
 
-    public String lounchProject(String projectId, String userLogin, String runCommand) throws NoSuchElementException {
+    public String launchProject(Project project, String userLogin, String runCommand) throws NoSuchElementException {
 
-        Project project = projectDao.getProjectById(projectId);
+
         String imageName = converter.getImageName(project, userLogin);
 
-        if (!dockerfileBuilder.createDockerfile(imageName, project)) {
-            //todo:throw exception
+        try {
+            dockerfileBuilder.createDockerfile(imageName, project, userLogin);
+        } catch (IOException e) {
+            logger.warn(MessageFormat.format("cant  create dockerfile for  launch project with ImageName {0} ", imageName), e);
             return null;
         }
-        //todo:filename - projectname_userlogin
-        List<String> imageLogs = dockerImageCreater.createImage(imageName, PathConstant.path.concat(PathConstant.DockerfileFolderName).concat(imageName), PathConstant.path);
+        if (!dockerImageCreater.createImage(imageName, pathConstant.getPath().concat(pathConstant.getDockerfileFolderName()).concat(imageName), pathConstant.getPath())) {
+            return null;//todo:message
+        }
         Process process = dockerImageCreater.runImage(imageName, runCommand);
         addLaunchedProject(imageName, process);
-        webSocketWritter.sendLogs("/".concat(imageName),String.join(GeneralConstants.NEWLINE,imageLogs));//todo: ? if needed
         return imageName;
     }
 
-    public boolean stopProject(String projectId, String userLogin) throws NoSuchElementException {
-        Project project = projectDao.getProjectById(projectId);
+    public boolean stopProject(Project project, String userLogin) throws NoSuchElementException {
         String imageName = converter.getImageName(project, userLogin);
         this.terminateProcess(imageName);
         return true;
@@ -90,7 +97,7 @@ public class ProjectLauncher {
 
     @Scheduled(fixedDelay = 100)
     public void sheduledOutput() {
-        List<String> toTerminate=new ArrayList<>();
+        List<String> toTerminate = new ArrayList<>();
         launchedProjects.entrySet().stream().parallel().forEach(s -> {
             Process p = s.getValue();
             StringBuilder result = new StringBuilder();
@@ -122,13 +129,13 @@ public class ProjectLauncher {
             }
             if (result.length() == 0 && !p.isAlive()) {
 
-                String lastOutput = "end with" + p.exitValue()+"\n";
+                String lastOutput = "end with" + p.exitValue() + GeneralConstants.NEWLINE;
                 toTerminate.add(s.getKey());
-                webSocketWritter.sendOutput("/".concat(s.getKey()), lastOutput);
+                webSocketWritter.sendOutput(GeneralConstants.SLASH.concat(s.getKey()), lastOutput);
                 return;
             }
-            if (!result.toString().equals("")) {
-                webSocketWritter.sendOutput("/".concat(s.getKey()), result.toString());
+            if (!result.toString().equals(GeneralConstants.EMPTY)) {
+                webSocketWritter.sendOutput(GeneralConstants.SLASH.concat(s.getKey()), result.toString());
             }
         });
         toTerminate.stream().parallel().forEach(this::terminateProcess);
