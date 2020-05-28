@@ -15,11 +15,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -130,35 +128,35 @@ public class Application {
                 List<String> commands = new ArrayList<>();
                 commands.add("mkdir target");
                 commands.add(java.getCompileCommand());
-                buildStages.add(new BuildStage(java, java.getImageVersion().get(0), commands));
+                buildStages.add(new BuildStage(java, java.getVersion().get(0), commands));
                 commands = new ArrayList<>();
                 commands.add(java.getExecuteCommand());
-                buildStages.add(new BuildStage(java, java.getImageVersion().get(0), commands));
+                buildStages.add(new BuildStage(java, java.getVersion().get(0), commands));
                 BuildTemplate javaApplication = new BuildTemplate("JavaApplication", LanguageConstant.JAVA, buildStages);
                 //maven
                 buildStages = new ArrayList<>();
                 commands = new ArrayList<>();
                 commands.add(maven.getCompileCommand());
-                buildStages.add(new BuildStage(maven, maven.getImageVersion().get(0), commands));
+                buildStages.add(new BuildStage(maven, maven.getVersion().get(0), commands));
                 commands = new ArrayList<>();
                 commands.add(maven.getExecuteCommand());
-                buildStages.add(new BuildStage(maven, maven.getImageVersion().get(0), commands));
+                buildStages.add(new BuildStage(maven, maven.getVersion().get(0), commands));
                 BuildTemplate mavenApplication = new BuildTemplate("mavenApplication", LanguageConstant.JAVA, buildStages);
                 //Python
                 buildStages = new ArrayList<>();
                 commands = new ArrayList<>();
                 commands.add(python.getExecuteCommand());
-                buildStages.add(new BuildStage(python, python.getImageVersion().get(0), commands));
+                buildStages.add(new BuildStage(python, python.getVersion().get(0), commands));
                 BuildTemplate pythonApplication = new BuildTemplate("PythonApplication", LanguageConstant.PYTHON, buildStages);
                 //cpp
                 buildStages = new ArrayList<>();
                 commands = new ArrayList<>();
                 commands.add("mkdir bin");
                 commands.add(gcc.getCompileCommand());
-                buildStages.add(new BuildStage(gcc, gcc.getImageVersion().get(0), commands));
+                buildStages.add(new BuildStage(gcc, gcc.getVersion().get(0), commands));
                 commands = new ArrayList<>();
                 commands.add(gcc.getExecuteCommand());
-                buildStages.add(new BuildStage(gcc, gcc.getImageVersion().get(0), commands));
+                buildStages.add(new BuildStage(gcc, gcc.getVersion().get(0), commands));
                 BuildTemplate CppApplication = new BuildTemplate("CppApplication", LanguageConstant.Cpp, buildStages);
                 /*
                  * save to dataBase

@@ -11,13 +11,22 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+/**
+ * Contains two method for clean system .
+ *
+ * @author Tverdokhlib
+ */
 @Service
 public class DockerCleaner {
     private static final Logger logger = LoggerFactory.getLogger(DockerCleaner.class);
     @Autowired
     private Terminal terminal;
 
-
+    /**
+     * this is scheduled method. clean extra images which was produced where user launch project
+     *
+     *
+     */
     @Scheduled(cron ="${clean.image.cron.expression}")
     public void imageClean(){
        logger.info("Docker clean extra image");

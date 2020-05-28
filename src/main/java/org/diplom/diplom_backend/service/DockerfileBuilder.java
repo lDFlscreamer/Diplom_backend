@@ -1,11 +1,9 @@
 package org.diplom.diplom_backend.service;
 
-import org.diplom.diplom_backend.Application;
 import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.constant.PathConstant;
 import org.diplom.diplom_backend.entity.BuildStage;
 import org.diplom.diplom_backend.entity.Project;
-import org.diplom.diplom_backend.repository.ImageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,16 +36,16 @@ public class DockerfileBuilder {
         for (BuildStage stage : project.getBuildStages()) {
             String line;
             if (!stage.getImage().getId().equals(previousImageId)) {
-                line = MessageFormat.format("FROM {0}:{1}", stage.getImage().getImageName(), stage.getVersion() != null ? stage.getVersion() : "latest");
+                line = MessageFormat.format("FROM {0}:{1}", stage.getImage().getName(), stage.getVersion() != null ? stage.getVersion() : "latest");
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE)
-                        .append(MessageFormat.format("WORKDIR  /usr/src/{0}",project.getProjectName())).append(GeneralConstants.NEWLINE);
+                        .append(MessageFormat.format("WORKDIR  /usr/src/{0}",project.getName())).append(GeneralConstants.NEWLINE);
                 if (previousImageId != null) {
-                    line = MessageFormat.format("COPY --from={1} /usr/src/{0} .", project.getProjectName(), imageCounter);
+                    line = MessageFormat.format("COPY --from={1} /usr/src/{0} .", project.getName(), imageCounter);
                     dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 }
             }
             if (!isInitialized) {
-                line = MessageFormat.format("COPY ./{1}{0} . ", project.getProjectName(), pathConstant.getProjectFolderName());
+                line = MessageFormat.format("COPY ./{1}{0} . ", project.getName(), pathConstant.getProjectFolderName());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 isInitialized = true;
             }
@@ -56,7 +54,7 @@ public class DockerfileBuilder {
             int j = 0;
             for (String command : stage.getCommand()) {
                 line = "RUN {0}";
-                line = MessageFormat.format(line, command.replace("${mainClass}", project.getMainClass())).replace("${projectName}",project.getProjectName());
+                line = MessageFormat.format(line, command.replace("${mainClass}", project.getLaunchFilePath())).replace("${projectName}",project.getName());
                 if ((i == (project.getBuildStages().size() - 1)) && j == (stage.getCommand().size() - 1)) {
                     if(project.getPorts()!=null && !project.getPorts().isEmpty()){
                         for (Integer port :
@@ -73,7 +71,7 @@ public class DockerfileBuilder {
             previousImageId = stage.getImage().getId();
             i++;
         }
-        logger.debug(MessageFormat.format("created dockerfile for project where name is {0}  and user where login is {1}",project.getProjectName(),login));
+        logger.debug(MessageFormat.format("created dockerfile for project where name is {0}  and user where login is {1}",project.getName(),login));
         return dockerFileContent;
     }
 

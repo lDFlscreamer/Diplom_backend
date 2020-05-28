@@ -46,7 +46,7 @@ public class ProjectConroller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public Project createProject(@RequestBody Project project) {
-        Optional<Project> byProjectNameAndMainClass = projectRepository.findByProjectNameAndMainClass(project.getProjectName(), project.getMainClass());
+        Optional<Project> byProjectNameAndMainClass = projectRepository.findByProjectNameAndMainClass(project.getName(), project.getLaunchFilePath());
         return byProjectNameAndMainClass.orElseGet(() -> projectRepository.save(project));
     }
 

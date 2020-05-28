@@ -7,6 +7,17 @@ import org.springframework.data.annotation.Id;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * this class represent a template for build standard project(java,maven,python etc)
+ * <p>Fields</p>
+ * {@code templateName} is template name .It`s short information about template .
+ * {@code language} use for understand which programing language uses in this template
+ * {@code stages} is a {@link BuildStage} for launch
+ *
+ * @author Tverdokhlib
+ * @see BuildStage
+ * @see BuildTemplate
+ */
 @Data
 public class BuildTemplate {
     @Id

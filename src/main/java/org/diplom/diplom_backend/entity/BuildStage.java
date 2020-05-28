@@ -4,6 +4,18 @@ import lombok.Data;
 
 import java.util.List;
 
+/**
+ * {@code BuildStage} uses to describe one build step
+ * <p>Fields</p>
+ * {@code image}  is exemplar of {@link Image} entity.Describes image dependency for this stage.
+ * {@code version} is version of image .
+ * {@code command} this sis list of command which must be executed on this step
+ *
+ * @author tverdokhlib
+ * @see BuildTemplate
+ * @see BuildStage
+ * @see Image
+ */
 @Data
 public class BuildStage {
     private Image image;
