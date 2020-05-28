@@ -18,12 +18,24 @@ public class ProjectDao {
     @Autowired
     public ProjectRepository projectRepository;
 
-    public Project getProjectById(String id) throws NoSuchElementException{
+    public Project getProjectById(String id) throws NoSuchElementException {
         Optional<Project> byId = projectRepository.findById(id);
-        if (!byId.isPresent()){
-            logger.error(MessageFormat.format("Project with id {0} not found ",id));
-            throw new NoSuchElementException(String.format("Project with id %s not found ",id));
+        if (!byId.isPresent()) {
+            logger.warn(MessageFormat.format("Project with id {0} not found ", id));
+            throw new NoSuchElementException(String.format("Project with id %s not found ", id));
         }
         return byId.get();
     }
+
+    public Project getProjectByName(String name) throws NoSuchElementException {
+
+        Optional<Project> byName = projectRepository.findByName(name);
+        if (!byName.isPresent()) {
+            logger.warn(MessageFormat.format("Project with name {0} not found ", name));
+            throw new NoSuchElementException(String.format("Project with id %s not found ", name));
+        }
+        return byName.get();
+    }
+
+
 }

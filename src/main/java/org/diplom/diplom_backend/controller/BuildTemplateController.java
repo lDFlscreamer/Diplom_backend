@@ -31,14 +31,5 @@ public class BuildTemplateController {
         return buildTemplateRepository.findAll();
     }
 
-    @PutMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.CREATED)
-    public Project createProject(@RequestBody Map<String, Object> project){
-
-
-        return null;
-    }
 
 }

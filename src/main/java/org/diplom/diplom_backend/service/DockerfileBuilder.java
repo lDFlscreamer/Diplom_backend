@@ -35,7 +35,7 @@ public class DockerfileBuilder {
 
         for (BuildStage stage : project.getBuildStages()) {
             String line;
-            if (!stage.getImage().getId().equals(previousImageId)) {
+            if (!stage.getImage().get_id().equals(previousImageId)) {
                 line = MessageFormat.format("FROM {0}:{1}", stage.getImage().getName(), stage.getVersion() != null ? stage.getVersion() : "latest");
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE)
                         .append(MessageFormat.format("WORKDIR  /usr/src/{0}",project.getName())).append(GeneralConstants.NEWLINE);
@@ -46,6 +46,8 @@ public class DockerfileBuilder {
             }
             if (!isInitialized) {
                 line = MessageFormat.format("COPY ./{1}{0} . ", project.getName(), pathConstant.getProjectFolderName());
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                line=MessageFormat.format("LABEL user=\"{0}\"",login);
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 isInitialized = true;
             }
@@ -68,7 +70,7 @@ public class DockerfileBuilder {
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 j++;
             }
-            previousImageId = stage.getImage().getId();
+            previousImageId = stage.getImage().get_id();
             i++;
         }
         logger.debug(MessageFormat.format("created dockerfile for project where name is {0}  and user where login is {1}",project.getName(),login));

@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface LanguageRepository extends MongoRepository<Language, String> {
-    Optional<Language> findById(String id);
     Optional<Language> findByLanguage(String language);
 
 }

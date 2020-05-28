@@ -2,14 +2,18 @@ package org.diplom.diplom_backend.controller;
 
 import org.diplom.diplom_backend.entity.Project;
 import org.diplom.diplom_backend.repository.ProjectRepository;
+import org.diplom.diplom_backend.service.*;
 import org.diplom.diplom_backend.service.Dao.ProjectDao;
-import org.diplom.diplom_backend.service.ProjectDetailFinder;
-import org.diplom.diplom_backend.service.ProjectLauncher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -18,8 +22,12 @@ import java.util.Optional;
 @RestController
 @RequestMapping(value = "/project")
 public class ProjectConroller {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProjectConroller.class);
     @Autowired
     ProjectRepository projectRepository;
+    @Autowired
+    private Converter converter;
     @Autowired
     private ProjectLauncher projectLauncher;
     @Autowired
@@ -31,7 +39,7 @@ public class ProjectConroller {
     @GetMapping(value = "/{Name}")
     @ResponseStatus(value = HttpStatus.FOUND)
     public Project getProjectByName(@PathVariable("Name") String name) {
-        Optional<Project> byProjectName = projectRepository.findByProjectName(name);
+        Optional<Project> byProjectName = projectRepository.findByName(name);
         return byProjectName.orElse(null);
     }
 
@@ -46,7 +54,7 @@ public class ProjectConroller {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.CREATED)
     public Project createProject(@RequestBody Project project) {
-        Optional<Project> byProjectNameAndMainClass = projectRepository.findByProjectNameAndMainClass(project.getName(), project.getLaunchFilePath());
+        Optional<Project> byProjectNameAndMainClass = projectRepository.findByNameAndLaunchFilePath(project.getName(), project.getLaunchFilePath());
         return byProjectNameAndMainClass.orElseGet(() -> projectRepository.save(project));
     }
 
@@ -65,7 +73,7 @@ public class ProjectConroller {
         String userLogin = userLoginObj.toString();
 
         Project project = projectDao.getProjectById(projectId);
-        return projectLauncher.launchProject(project, userLogin, runCommandObj==null?null:runCommandObj.toString());
+        return projectLauncher.launchProject(project, userLogin, runCommandObj == null ? null : runCommandObj.toString());
     }
 
     @PostMapping(value = "/stop",
@@ -98,16 +106,27 @@ public class ProjectConroller {
 
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
-        return projectDetailFinder.getPortData(projectId, userLogin);
+        Project project = projectDao.getProjectById(projectId);
+        String imageName = converter.getImageName(project, userLogin);
+        return projectDetailFinder.getPortData(imageName);
     }
 
+    @MessageMapping("/{imageName}")
+    public void simple(@DestinationVariable String imageName, String message) {
+        try {
+            projectLauncher.inputInProject(imageName, message);
+        } catch (NoSuchElementException e) {
+            logger.info(MessageFormat.format("can not input {1} .Because Project with imageName {0} may not be launched", imageName, message));
+        }
+    }
 
-    @PostMapping(value = "/inPut",
+    @Autowired DockerCleaner dockerCleaner;
+    @PostMapping(value = "/logOut",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public boolean inPutProject(
+    public void logOut(
             @RequestBody Map<String, Object> args) throws NoSuchElementException {
         Object projectIdObj = args.get("projectId");
         Object userLoginObj = args.get("userLogin");
@@ -115,7 +134,6 @@ public class ProjectConroller {
 
         String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
-        String input = inputObj.toString();
-        return projectLauncher.inputInProject(projectId, userLogin, input);
+        dockerCleaner.removeImages(userLogin);
     }
 }

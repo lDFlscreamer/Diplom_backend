@@ -11,23 +11,23 @@ import java.util.stream.Collectors;
 @Data
 public class Language {
     @Id
-    String id;
+    String _id;
     String language;
     List<String> images;
 
     public Language() {
-        this.id= UUID.randomUUID().toString();
+        this._id = UUID.randomUUID().toString();
     }
 
     public Language(LanguageConstant language, List<Image> images) {
         this();
         this.language = language.toString();
-        this.images = images.stream().map(Image::getId).collect(Collectors.toList());
+        this.images = images.stream().map(Image::get_id).collect(Collectors.toList());
     }
 
     public Language(String language, List<Image> images) {
         this();
         this.language = language;
-        this.images = images.stream().map(Image::getId).collect(Collectors.toList());
+        this.images = images.stream().map(Image::get_id).collect(Collectors.toList());
     }
 }

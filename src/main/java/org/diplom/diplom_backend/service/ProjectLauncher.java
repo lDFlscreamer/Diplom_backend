@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Service
 public class ProjectLauncher {
@@ -29,7 +26,7 @@ public class ProjectLauncher {
     @Autowired
     private Converter converter;
     @Autowired
-    private ProjectDao projectDao;
+    private ProjectDetailFinder projectDetailFinder;
     @Autowired
     private DockerfileBuilder dockerfileBuilder;
     @Autowired
@@ -51,14 +48,14 @@ public class ProjectLauncher {
         }
     }
 
-    public boolean inputInProject(String projectId, String userLogin, String input) throws NoSuchElementException {
-        Project project = projectDao.getProjectById(projectId);
-        String imageName = converter.getImageName(project, userLogin);
+    public boolean inputInProject(String imageName, String input) throws NoSuchElementException {
         Process process = launchedProjects.get(imageName);
         if (process == null) {
+            webSocketWritter.sendOutput(imageName,GeneralConstants.NEWLINE.concat("!!! project may  not launched "));
             logger.warn(MessageFormat.format("project with imageName  {0}  is not launched", imageName));
             return false;
         }
+
         OutputStream stdin = process.getOutputStream();
         try {
             stdin.write(input.concat(GeneralConstants.NEWLINE).getBytes());
@@ -66,6 +63,7 @@ public class ProjectLauncher {
         } catch (IOException e) {
             logger.warn(MessageFormat.format("can`t  write into input stream of launched project with ImageName {0} ", imageName), e);
         }
+      //  webSocketWritter.sendOutput(imageName,MessageFormat.format(GeneralConstants.NEWLINE.concat("--> {0}"),input));
         return true;
     }
 
@@ -86,6 +84,8 @@ public class ProjectLauncher {
         }
         Process process = dockerImageCreater.runImage(imageName, runCommand);
         addLaunchedProject(imageName, process);
+        // TODO: 5/28/20 portdata
+        printPortData(imageName);
         return imageName;
     }
 
@@ -139,6 +139,12 @@ public class ProjectLauncher {
             }
         });
         toTerminate.stream().parallel().forEach(this::terminateProcess);
+    }
+
+    public void printPortData(String imageName){
+        Map<Integer, Integer> portData = projectDetailFinder.getPortData(imageName);
+        String portStr = portData.values().stream().map(integer -> integer + "->" + integer).reduce((s, s2) -> s.concat(GeneralConstants.NEWLINE).concat(s2)).orElse(GeneralConstants.EMPTY);
+        webSocketWritter.sendOutput(imageName,MessageFormat.format("Project port are redirected:".concat(GeneralConstants.NEWLINE).concat("{0}"),portStr));
     }
 
 

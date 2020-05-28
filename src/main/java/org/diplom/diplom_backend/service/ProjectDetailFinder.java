@@ -28,17 +28,16 @@ public class ProjectDetailFinder {
     @Autowired
     ProjectDao projectDao;
 
-    public Map<Integer, Integer> getPortData(String projectId, String userLogin) {
+    public Map<Integer, Integer> getPortData(String imageName) {
 
-        Project project = projectDao.getProjectById(projectId);
-        String imageName = converter.getImageName(project, userLogin);
-        Process process = null;
+
+        Process process;
         try {
             process = terminal.runCommand(MessageFormat.format(DockerCommandConstant.GET_CONTAINER_ID_BY_IMAGENAME, imageName));
             String containerID = String.join(GeneralConstants.SPACE, terminal.getOutputFromProcess(process));
             process = terminal.runCommand(MessageFormat.format(DockerCommandConstant.GET_PORT_INFORMATION_BY_IMAGE_NAME, containerID));
         } catch (IOException e) {
-            logger.warn(String.format("can`t get port information about runed %s_%s ",projectId,userLogin),e);
+            logger.warn(String.format("can`t get port information about runed %s ",imageName),e);
             return null;
         }
         List<String> result = terminal.getOutputFromProcess(process);

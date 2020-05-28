@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class Converter {
 
+    private static String DELIMITER =GeneralConstants.UNDERSCORE;
 
     /**
      * mehtod to convert data from {@link Project} and {@code user login } to identifier of launched project
@@ -21,6 +22,8 @@ public class Converter {
      * @return identifier of launched project.Which uses to name dockerImage or identify launched project in map of launched project
      */
     public String getImageName(Project project,String login){
-        return project.getName().concat(GeneralConstants.UNDERSCORE).concat(login).toLowerCase();
+        return project.getName().concat(DELIMITER).concat(login).toLowerCase();
     }
+
+
 }

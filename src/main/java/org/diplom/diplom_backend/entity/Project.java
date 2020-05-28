@@ -29,7 +29,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Project {
     @Id
-    private String id;
+    private String _id;
     private String name;//name of project
     private String language;
     private String path;
@@ -40,7 +40,7 @@ public class Project {
     private List<Integer> ports;
 
     public Project() {
-        this.id= UUID.randomUUID().toString();
+        this._id = UUID.randomUUID().toString();
     }
 
     public Project(String name, String launchFilePath, List<BuildStage> buildStages) {

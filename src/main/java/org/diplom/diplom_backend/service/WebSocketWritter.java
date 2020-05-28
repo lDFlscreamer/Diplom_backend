@@ -11,11 +11,15 @@ public class WebSocketWritter {
 
 
     public  void send(String imageName,String typeOfMessage,Object payload){
-        template.convertAndSend("/".concat(imageName).concat("/").concat(typeOfMessage), payload);
+        String adr = "/".concat(imageName);
+        if (!typeOfMessage.isEmpty()){
+            adr=adr.concat("/").concat(typeOfMessage);
+        }
+        template.convertAndSend(adr, payload);
     }
 
     public void sendOutput(String imagename,Object payload){
-        send(imagename,"output",payload);
+        send(imagename,"",payload);
     }
 
     public void sendLogs(String imagename,Object payload){

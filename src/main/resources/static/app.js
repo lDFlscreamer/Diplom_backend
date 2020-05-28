@@ -1,5 +1,5 @@
 var stompClient = null;
-
+var adr='/'.concat($("#name").val())
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
@@ -18,7 +18,7 @@ function connect() {
     stompClient.connect({}, function (frame) {
         setConnected(true);
         console.log('Connected: ' + frame);
-        var adr='/'.concat($("#name").val())
+        adr='/'.concat($("#name").val())
         console.log("adr=".concat(adr));
         stompClient.subscribe(adr, function (greeting) {
             console.log('typeof greeting: ' + typeof(greeting.body));
@@ -36,7 +36,8 @@ function disconnect() {
 }
 
 function sendName() {
-    stompClient.send("/app/hello", {}, $("#name").val());
+    adr='/'.concat($("#name").val())
+    stompClient.send(adr, {}, $("#name").val());
 }
 
 function showGreeting(message) {

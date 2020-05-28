@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends MongoRepository<Project, String> {
-    Optional<Project> findById(String id);
-    Optional<Project> findByProjectName(String name);
-    Optional<Project> findByProjectNameAndMainClass(String projectName, String mainClass);
+    Optional<Project> findByName(String name);
+    Optional<Project> findByNameAndLaunchFilePath(String projectName, String mainClass);
 }
