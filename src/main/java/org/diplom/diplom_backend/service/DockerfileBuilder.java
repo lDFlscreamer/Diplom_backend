@@ -1,7 +1,7 @@
 package org.diplom.diplom_backend.service;
 
 import org.diplom.diplom_backend.constant.GeneralConstants;
-import org.diplom.diplom_backend.constant.PathConstant;
+import org.diplom.diplom_backend.constant.SystemConstant;
 import org.diplom.diplom_backend.entity.BuildStage;
 import org.diplom.diplom_backend.entity.Project;
 import org.slf4j.Logger;
@@ -11,13 +11,14 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class DockerfileBuilder {
     private static final Logger logger = LoggerFactory.getLogger(DockerfileBuilder.class);
     @Autowired
-    private PathConstant pathConstant;
+    private SystemConstant systemConstant;
 
     public void createDockerfile(String filename, Project project,String login) throws IOException {
         StringBuilder dockerFileContent = createDockerfileContent(project,login);
@@ -32,8 +33,9 @@ public class DockerfileBuilder {
         String previousImageId = null;
         int imageCounter = 0;
         int i = 0;
+        List<BuildStage> projectStages = project.getBuildStages();
 
-        for (BuildStage stage : project.getBuildStages()) {
+        for (BuildStage stage : projectStages) {
             String line;
             if (!stage.getImage().get_id().equals(previousImageId)) {
                 line = MessageFormat.format("FROM {0}:{1}", stage.getImage().getName(), stage.getVersion() != null ? stage.getVersion() : "latest");
@@ -45,19 +47,35 @@ public class DockerfileBuilder {
                 }
             }
             if (!isInitialized) {
-                line = MessageFormat.format("COPY ./{1}{0} . ", project.getName(), pathConstant.getProjectFolderName());
+                line = MessageFormat.format("COPY ./{1}/{0} . ", project.getName(), systemConstant.getProjectFolderName());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 line=MessageFormat.format("LABEL user=\"{0}\"",login);
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+
+                line=MessageFormat.format("COPY ./{0} ../ ", systemConstant.getUtilsFolderName());
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                line= MessageFormat.format( "RUN  touch ../Changes ", systemConstant.getModifierScriptName());
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                line = MessageFormat.format("COPY ./{1}/{0}/{2} ../ ", login, systemConstant.getUserResourcesFolderName(),project.getName());
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                line= MessageFormat.format( "RUN  ../{0}.sh ../Changes ", systemConstant.getModifierScriptName());
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                ///
+                line= "RUN  ls";
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                ///
                 isInitialized = true;
             }
 
             //integrate commands
             int j = 0;
             for (String command : stage.getCommand()) {
-                line = "RUN {0}";
-                line = MessageFormat.format(line, command.replace("${mainClass}", project.getLaunchFilePath())).replace("${projectName}",project.getName());
-                if ((i == (project.getBuildStages().size() - 1)) && j == (stage.getCommand().size() - 1)) {
+
+                line = command.replace("${mainClass}", project.getLaunchFilePath())
+                        .replace("${projectName}",project.getName())
+                        .replace("${userLogin}",login);
+                line = MessageFormat.format("RUN {0}",line);
+                if ((i == (projectStages.size() - 1)) && j == (stage.getCommand().size() - 1)) {
                     if(project.getPorts()!=null && !project.getPorts().isEmpty()){
                         for (Integer port :
                                 project.getPorts()) {
@@ -79,7 +97,7 @@ public class DockerfileBuilder {
 
     public void writeTofile(String filename, StringBuilder dockerfileContent) throws IOException {
 
-        String path = pathConstant.getPath().concat(pathConstant.getDockerfileFolderName()).concat(filename);
+        String path = systemConstant.getPath().concat(systemConstant.getDockerfileFolderName().concat(GeneralConstants.SLASH)).concat(filename);
         File dockerFile = new File(path);
         if (dockerFile.exists()) {
 

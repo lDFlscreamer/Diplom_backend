@@ -1,7 +1,8 @@
 package org.diplom.diplom_backend;
 
+import org.diplom.diplom_backend.constant.GeneralConstants;
 import org.diplom.diplom_backend.constant.LanguageConstant;
-import org.diplom.diplom_backend.constant.PathConstant;
+import org.diplom.diplom_backend.constant.SystemConstant;
 import org.diplom.diplom_backend.entity.*;
 import org.diplom.diplom_backend.repository.BuildTemplateRepository;
 import org.diplom.diplom_backend.repository.ImageRepository;
@@ -17,7 +18,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +31,7 @@ public class Application {
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
     @Autowired
-    private PathConstant pathConstant;
+    private SystemConstant systemConstant;
     @Autowired
     private ImageRepository imageRepository;
     @Autowired
@@ -182,15 +186,18 @@ public class Application {
             /*
              * validate path to work directory
              * */
-            createFolder(pathConstant.getPath());
-            createFolder(pathConstant.getPath().concat(pathConstant.getDockerfileFolderName()));
-            createFolder(pathConstant.getPath().concat(pathConstant.getProjectFolderName()));
-            createFolder(pathConstant.getPath().concat(pathConstant.getUserResourcesFolderName()));
+            validateFolder(systemConstant.getPath());
+            validateFolder(systemConstant.getPath().concat(systemConstant.getDockerfileFolderName()).concat(GeneralConstants.SLASH));
+            validateFolder(systemConstant.getPath().concat(systemConstant.getProjectFolderName()).concat(GeneralConstants.SLASH));
+            validateFolder(systemConstant.getPath().concat(systemConstant.getUserResourcesFolderName()).concat(GeneralConstants.SLASH));
+            String utilsFolderPath = systemConstant.getPath().concat(systemConstant.getUtilsFolderName()).concat(GeneralConstants.SLASH);
+            validateFolder(utilsFolderPath);
+            validateFile(utilsFolderPath.concat(systemConstant.getModifierScriptName()).concat(".sh"), systemConstant.getModifierScriptCode());
         };
     }
 
 
-    boolean createFolder(String path) throws IllegalAccessException {
+    private void validateFolder(String path) throws IllegalAccessException {
         File folder = new File(path);
         if (!folder.exists()) {
             if (!folder.mkdirs()) {
@@ -204,8 +211,24 @@ public class Application {
             logger.error(message);
             throw new IllegalAccessException(message);
         }
-        return true;
     }
 
+    private void validateFile(String path,String content) throws IllegalAccessException {
+        File file = new File(path);
+        if(file.exists()){
+            return;
+        }
+        try{
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            bw.close();
+        }
+        catch (IOException e){
+            String message = String.format("can`t create and fill a file  %s ", path);
+            logger.error(message);
+            throw new IllegalAccessException(message);
+        }
+    }
 
 }

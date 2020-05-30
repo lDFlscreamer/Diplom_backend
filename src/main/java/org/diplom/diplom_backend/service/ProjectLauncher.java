@@ -1,9 +1,8 @@
 package org.diplom.diplom_backend.service;
 
 import org.diplom.diplom_backend.constant.GeneralConstants;
-import org.diplom.diplom_backend.constant.PathConstant;
+import org.diplom.diplom_backend.constant.SystemConstant;
 import org.diplom.diplom_backend.entity.Project;
-import org.diplom.diplom_backend.service.Dao.ProjectDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ public class ProjectLauncher {
 
     private HashMap<String, Process> launchedProjects = new HashMap<>();
     @Autowired
-    private PathConstant pathConstant;
+    private SystemConstant systemConstant;
     @Autowired
     private WebSocketWritter webSocketWritter;
     @Autowired
@@ -79,7 +78,7 @@ public class ProjectLauncher {
             logger.warn(MessageFormat.format("cant  create dockerfile for  launch project with ImageName {0} ", imageName), e);
             return null;
         }
-        if (!dockerImageCreater.createImage(imageName, pathConstant.getPath().concat(pathConstant.getDockerfileFolderName()).concat(imageName), pathConstant.getPath())) {
+        if (!dockerImageCreater.createImage(imageName, systemConstant.getPath().concat(systemConstant.getDockerfileFolderName().concat(GeneralConstants.SLASH)).concat(imageName), systemConstant.getPath())) {
             return null;//todo:message
         }
         Process process = dockerImageCreater.runImage(imageName, runCommand);

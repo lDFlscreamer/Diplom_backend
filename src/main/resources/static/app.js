@@ -24,6 +24,10 @@ function connect() {
             console.log('typeof greeting: ' + typeof(greeting.body));
             showGreeting(greeting.body);
         });
+        stompClient.subscribe(adr.concat("/logs"), function (logs) {
+            console.log('typeof logs: ' + typeof(logs.body));
+            showGLogs(logs.body);
+        });
     });
 }
 
@@ -42,6 +46,10 @@ function sendName() {
 
 function showGreeting(message) {
     $("#greetings").append( message.replace("\n","</td></tr><tr><td>"));
+}
+
+function showGLogs(message) {
+    $("#logs").append( message.replace("\n","<br>"));
 }
 
 $(function () {
