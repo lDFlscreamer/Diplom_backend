@@ -28,10 +28,15 @@ public class SystemConstant {
     @Getter
     private final String modifierScriptCode=
             "#!/bin/bash\n" +
-                    "\n" +
                     "\t\n" +
                     "function addContentToProjectFile() {\n" +
-                    "\techo \"$line $file\"\n" +
+                    "\tpart1=`dirname \"$file\"`\n" +
+                    "\tpart2=`basename \"$file\"`\n" +
+                    "\tmkdir -p \"$part1\"\n" +
+                    "\tif [ ! -f \"$file\" ]; then\n" +
+                    "\t touch $file\n" +
+                    "\tfi\n" +
+                    "\t#echo \"$line $file\"\n" +
                     "\techo \"$line\">> $file\n" +
                     "}\n" +
                     "\n" +
@@ -41,7 +46,6 @@ public class SystemConstant {
                     "\tadd=false\n" +
                     "\tremove=false\n" +
                     "\twhile IFS= read -r line; do\n" +
-                    "\n" +
                     "\t\taddFile=$(echo $line | egrep -o \"^\\[\\+[[:space:]]([\\.\\/a-Z0-9]+)\\]$\" | egrep -o  \"([\\.\\/a-Z0-9]+)\")\n" +
                     "\t\tremoveFile=$(echo $line | egrep -o \"^\\[\\-[[:space:]]([\\.\\/a-Z0-9]+)\\]$\" | egrep -o  \"([\\.\\/a-Z0-9]+)\")\n" +
                     "\t\t\tif [ -n \"$addFile\" ];\n" +
@@ -50,7 +54,6 @@ public class SystemConstant {
                     "\t\t\t\tadd=true\n" +
                     "\t\t\t\tremove=false\n" +
                     "\t\t\t\techo \"set add $file  $remove $add\"\n" +
-                    "\n" +
                     "\t\t\telif [ -n \"$removeFile\" ]\n" +
                     "\t\t\tthen\n" +
                     "\t\t\t\tfile=$removeFile\n" +
@@ -68,7 +71,6 @@ public class SystemConstant {
                     "\t\t\telse \n" +
                     "\t\t\t\techo \"nothing\"\n" +
                     "\t\t\tfi\n" +
-                    "\t\t\n" +
                     "\tdone<\"$1\"\n" +
                     "}\n" +
                     "\n" +

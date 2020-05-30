@@ -60,6 +60,10 @@ public class DockerfileBuilder {
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 line= MessageFormat.format( "RUN  ../{0}.sh ../Changes ", systemConstant.getModifierScriptName());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                ///
+                line= "RUN  ls";
+                dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
+                ///
                 isInitialized = true;
             }
 
