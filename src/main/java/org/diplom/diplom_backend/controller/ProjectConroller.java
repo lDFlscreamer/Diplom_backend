@@ -2,8 +2,11 @@ package org.diplom.diplom_backend.controller;
 
 import org.diplom.diplom_backend.entity.Project;
 import org.diplom.diplom_backend.repository.ProjectRepository;
-import org.diplom.diplom_backend.service.*;
-import org.diplom.diplom_backend.service.Dao.ProjectDao;
+import org.diplom.diplom_backend.service.Converter;
+import org.diplom.diplom_backend.service.Dao.ProjectDAO;
+import org.diplom.diplom_backend.service.DockerCleaner;
+import org.diplom.diplom_backend.service.ProjectDetailFinder;
+import org.diplom.diplom_backend.service.ProjectLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +34,7 @@ public class ProjectConroller {
     @Autowired
     private ProjectLauncher projectLauncher;
     @Autowired
-    private ProjectDao projectDao;
+    private ProjectDAO projectDao;
     @Autowired
     private ProjectDetailFinder projectDetailFinder;
 

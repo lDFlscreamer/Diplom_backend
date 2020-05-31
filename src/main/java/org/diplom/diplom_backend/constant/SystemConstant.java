@@ -2,29 +2,49 @@ package org.diplom.diplom_backend.constant;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SystemConstant {
+    /**
+     * path to folder which will be contains all system directory
+     */
     @Getter
     @Value("${path.directory.main:diplom/}")
     private  String path;
+    /**
+     * folder name which will be contains all dockerfile
+     */
     @Getter
     @Value("${path.directory.dockerfile.folder.name:Dockerfile}")
     private  String DockerfileFolderName;
+    /**
+     * folder name which will be contains all existing project
+     */
     @Getter
     @Value("${path.directory.project.folder.name:Project}")
     private  String ProjectFolderName;
+    /**
+     * folder name which will be contains user data
+     */
     @Getter
     @Value("${path.directory.userResources.folder.name:User}")
     private  String UserResourcesFolderName;
+    /**
+     * folder name which will be contains all utils bash script
+     */
     @Getter
     @Value("${path.directory.utils.folder.name:Utils}")
     private  String UtilsFolderName;
+    /**
+     * script name of modifier project
+     */
     @Getter
     @Value("${utils.script.modifier.name:projectModifier}")
     private  String modifierScriptName;
+    /**
+     * script code of modifier project
+     */
     @Getter
     private final String modifierScriptCode=
             "#!/bin/bash\n" +

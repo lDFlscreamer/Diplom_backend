@@ -13,7 +13,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 /**
- * Contains two method for clean system .
+ * Contains two method for clean system.
  *
  * @author Tverdokhlib
  */
@@ -53,6 +53,11 @@ public class DockerCleaner {
         }
     }
 
+    /**
+     * remove all user image and container with launched project
+     *
+     * @param userlogin login of user .To identify image by user login (use Label)
+     */
     public void removeImages(String userlogin) {
         try {
             String command = MessageFormat.format(DockerCommandConstant.GET_LIST_OF_IMAGE_BY_USER_LOGIN, userlogin);

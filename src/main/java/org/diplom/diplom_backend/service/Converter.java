@@ -13,10 +13,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class Converter {
 
-    private static String DELIMITER =GeneralConstants.UNDERSCORE;
+    private final String DELIMITER =GeneralConstants.UNDERSCORE;
 
     /**
-     * mehtod to convert data from {@link Project} and {@code user login } to identifier of launched project
+     * method to convert data from {@link Project} and {@code user login } to identifier of launched project
      * @param project exemplar of {@link Project}
      * @param login user login to identify which user run this project
      * @return identifier of launched project.Which uses to name dockerImage or identify launched project in map of launched project

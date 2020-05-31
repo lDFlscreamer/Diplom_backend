@@ -1,5 +1,8 @@
 package org.diplom.diplom_backend.constant;
 
+/**
+ * contains special symbols
+ */
 public class GeneralConstants {
     public static final String EMPTY = "";
     public static final String UNDERSCORE = "_";

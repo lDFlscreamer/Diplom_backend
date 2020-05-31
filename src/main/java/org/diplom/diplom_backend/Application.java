@@ -117,7 +117,7 @@ public class Application {
                 images = new ArrayList<>();
                 images.add(gcc);
 
-                Language CppLanguage = new Language(LanguageConstant.Cpp, images);
+                Language CppLanguage = new Language(LanguageConstant.CPP, images);
                 /*
                  * save to data base
                  * */
@@ -161,7 +161,7 @@ public class Application {
                 commands = new ArrayList<>();
                 commands.add(gcc.getExecuteCommand());
                 buildStages.add(new BuildStage(gcc, gcc.getVersion().get(0), commands));
-                BuildTemplate CppApplication = new BuildTemplate("CppApplication", LanguageConstant.Cpp, buildStages);
+                BuildTemplate CppApplication = new BuildTemplate("CppApplication", LanguageConstant.CPP, buildStages);
                 /*
                  * save to dataBase
                  * */

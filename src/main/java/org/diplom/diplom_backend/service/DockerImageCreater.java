@@ -12,6 +12,13 @@ import java.io.*;
 import java.text.MessageFormat;
 import java.util.List;
 
+
+/**
+ * class contains method for create and run docker images
+ *
+ * @author Tverdokhlib
+ * @see ProjectLauncher
+ */
 @Service
 public class DockerImageCreater {
     private static final Logger logger = LoggerFactory.getLogger(DockerImageCreater.class);
@@ -20,11 +27,20 @@ public class DockerImageCreater {
     @Autowired
     private WebSocketWritter webSocketWritter;
 
-    public boolean createImage(String name, String dockerfilePath, String projectPath) throws RuntimeException {
+
+    /**
+     * Create docker image
+     *
+     * @param name name of docker image. Use for run image
+     * @param dockerfilePath filePath to file with docker instructions
+     * @param path   path to directory
+     * @return {@code true} if everything fine
+     */
+    public boolean createImage(String name, String dockerfilePath, String path){
         Process process;
         boolean isOk = true;
 
-        String terminalCommand = MessageFormat.format(DockerCommandConstant.CREATE_IMAGE, name, dockerfilePath, projectPath);
+        String terminalCommand = MessageFormat.format(DockerCommandConstant.CREATE_IMAGE, name, dockerfilePath, path);
         try {
             process = terminal.runCommand(terminalCommand);
         } catch (IOException e) {
@@ -43,6 +59,11 @@ public class DockerImageCreater {
         return isOk;
     }
 
+    /**
+     * Get list of images
+     *
+     * @return output of "docker images"
+     */
     public List<String> getImages() {
         Process process;
         try {
@@ -54,6 +75,15 @@ public class DockerImageCreater {
         return terminal.getOutputFromProcess(process);
     }
 
+    /**
+     * Run created docker image
+     *
+     * @param imageNameOrId identifier of image
+     * @param initialCommand command to execute on this image
+     * @return launched image
+     *
+     * @see Process
+     */
     public Process runImage(String imageNameOrId, String initialCommand) {
         Process process;
         String terminalCommand = MessageFormat.format(DockerCommandConstant.RUN_IMAGE, imageNameOrId, initialCommand == null ? GeneralConstants.EMPTY : initialCommand);
@@ -70,7 +100,6 @@ public class DockerImageCreater {
     public Process removeImage(String imageNameOrId) {
         Process process;
         String terminalCommand = MessageFormat.format(DockerCommandConstant.REMOVE_IMAGE, imageNameOrId);
-
         try {
             process = terminal.runCommand(terminalCommand);
         } catch (IOException e) {

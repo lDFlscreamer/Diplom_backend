@@ -1,5 +1,8 @@
 package org.diplom.diplom_backend.constant;
 
+/**
+ * contains all docker command template
+ */
 public class DockerCommandConstant {
     public static final String IMAGES = "docker images";
     public static final String CREATE_IMAGE = "docker build  -t {0}  -f {1} {2} ";

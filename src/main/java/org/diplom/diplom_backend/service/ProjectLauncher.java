@@ -54,7 +54,6 @@ public class ProjectLauncher {
             logger.warn(MessageFormat.format("project with imageName  {0}  is not launched", imageName));
             return false;
         }
-
         OutputStream stdin = process.getOutputStream();
         try {
             stdin.write(input.concat(GeneralConstants.NEWLINE).getBytes());
@@ -62,14 +61,11 @@ public class ProjectLauncher {
         } catch (IOException e) {
             logger.warn(MessageFormat.format("can`t  write into input stream of launched project with ImageName {0} ", imageName), e);
         }
-      //  webSocketWritter.sendOutput(imageName,MessageFormat.format(GeneralConstants.NEWLINE.concat("--> {0}"),input));
         return true;
     }
 
 
     public String launchProject(Project project, String userLogin, String runCommand) throws NoSuchElementException {
-
-
         String imageName = converter.getImageName(project, userLogin);
 
         try {
@@ -83,7 +79,6 @@ public class ProjectLauncher {
         }
         Process process = dockerImageCreater.runImage(imageName, runCommand);
         addLaunchedProject(imageName, process);
-        // TODO: 5/28/20 portdata
         printPortData(imageName);
         return imageName;
     }

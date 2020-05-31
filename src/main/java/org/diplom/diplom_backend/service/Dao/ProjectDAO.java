@@ -11,13 +11,23 @@ import java.text.MessageFormat;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * Data Access Object for Project instance from data base
+ */
 @Service
-public class ProjectDao {
-    private static final Logger logger = LoggerFactory.getLogger(ProjectDao.class);
+public class ProjectDAO {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectDAO.class);
 
     @Autowired
     public ProjectRepository projectRepository;
 
+    /**
+     * Get project instance by project id
+     * @param id id of project
+     * @return project instance from db
+     * @throws NoSuchElementException throw if project with {@code id} not found
+     * @see Project
+     */
     public Project getProjectById(String id) throws NoSuchElementException {
         Optional<Project> byId = projectRepository.findById(id);
         if (!byId.isPresent()) {
@@ -27,6 +37,14 @@ public class ProjectDao {
         return byId.get();
     }
 
+    /**
+     * Get project instance by projectName
+     *
+     * @param name name of project
+     * @return project instance from db
+     * @throws NoSuchElementException throw if project with {@code projectName} not found
+     * @see Project
+     */
     public Project getProjectByName(String name) throws NoSuchElementException {
 
         Optional<Project> byName = projectRepository.findByName(name);

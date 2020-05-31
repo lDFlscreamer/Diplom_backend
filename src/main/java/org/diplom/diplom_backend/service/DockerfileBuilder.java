@@ -14,17 +14,86 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class for generate dockerfile. Create instructions  and write it into special file.
+ * Create  Dockerfile in DockerfileDirectory ({@link SystemConstant})
+ * Utility class for {@link ProjectLauncher}
+ *
+ * @author Tverdokhlib
+ * @see ProjectLauncher
+ */
 @Service
 public class DockerfileBuilder {
     private static final Logger logger = LoggerFactory.getLogger(DockerfileBuilder.class);
     @Autowired
     private SystemConstant systemConstant;
 
+    /**
+     * Main method for convert {@link Project} {@link BuildStage} to Docker instructions.
+     * Create Dockerfile with this instruction.
+     * @param filename Name of docker file
+     * @param project project instance. Which must be launched
+     * @param login user login. we need to identify which user changes must apply to project
+     * @throws IOException throw if something went wrong in process of creating  dockerfile
+     *
+     * @see Project
+     * @see Converter
+     */
     public void createDockerfile(String filename, Project project,String login) throws IOException {
         StringBuilder dockerFileContent = createDockerfileContent(project,login);
         writeTofile(filename, dockerFileContent);
     }
 
+
+    /**
+     * Convert  {@link Project} {@link BuildStage} to Docker instructions
+     *
+     * {@code
+     *  FOR each  stage  :
+     *              IF not a same image  :
+     *                   use baseImage  :"FROM {imageName}:{Version}"
+     *                   set work directory: "WORKDIR /usr/src/{projectName}"
+     *                   if it is not  first baseImage :
+     *                       Copy project file from previous stage : "COPY --from={1} /usr/src/{projectName} ."
+     *                   endif
+     *              ENDIF
+     *              IF it first step :
+     *                  copy projectFile into image work directory: "COPY ./{projectFolderName}/{projectName} ."
+     *                  set link image to user via label :"LABEL user={login}"
+     *                  Copy script for applying user changes: "COPY ./{UtilsFolderName} ../"
+     *                  create Changes file for situation if user haven`t changes: "RUN  touch ../Changes "
+     *                  Copy user changes : "COPY ./{serResourcesFolderName}/{login}/{projectName} ../"
+     *                  apply changes : "RUN  ../{modifierScriptName}.sh ../Changes "
+     *              ENDIF
+     *
+     *
+     *              FOR each command in stage :
+     *                  replace special value in command "${mainClass}","${projectName}","${userLogin}"
+     *                  IF it is not a last command in last stage:
+     *                       add "Run {command}"
+     *                  ENDIF
+     *                  IF last command in last stage :
+     *                      IF have port list:
+     *                          FOR  each port :
+     *                               expose port :"EXPOSE {port number}"
+     *                          ENDFOR
+     *                      ENDIF
+     *                      IF has exposed port
+     *                           add "ENTRYPOINT command"
+     *                     ELSE
+     *                           add "CMD command"
+     *                     ENDIF
+     *                 ENDIF
+     *          ENDFOR
+     *  ENDFOR
+     * }
+     * @param project project instance. Which must be launched
+     * @param login user login. we need to identify which user changes must apply to project
+     * @return Dockerfile instruction in {@link StringBuilder} instance
+     *
+     * @see Project
+     * @see org.diplom.diplom_backend.entity.Image
+     */
     public StringBuilder createDockerfileContent(Project project,String login) {
         //todo:add user part
         StringBuilder dockerFileContent = new StringBuilder();
@@ -91,6 +160,16 @@ public class DockerfileBuilder {
         return dockerFileContent;
     }
 
+
+    /**
+     * Write dockerfile instruction into file in {@code {@link SystemConstant}.getDockerfileFolderName()}
+     *
+     * @param filename filename of dockerfile.
+     * @param dockerfileContent  Dockerfile instruction in {@link StringBuilder} instance.
+     * @throws IOException throw if something went wrong in process of creating  dockerfile.
+     *
+     * @see Converter
+     */
     public void writeTofile(String filename, StringBuilder dockerfileContent) throws IOException {
 
         String path = systemConstant.getPath().concat(systemConstant.getDockerfileFolderName().concat(GeneralConstants.SLASH)).concat(filename);
