@@ -48,45 +48,42 @@ public class DockerfileBuilder {
     /**
      * Convert  {@link Project} {@link BuildStage} to Docker instructions
      *
-     * {@code
-     *  FOR each  stage  :
-     *              IF not a same image  :
-     *                   use baseImage  :"FROM {imageName}:{Version}"
-     *                   set work directory: "WORKDIR /usr/src/{projectName}"
-     *                   if it is not  first baseImage :
-     *                       Copy project file from previous stage : "COPY --from={1} /usr/src/{projectName} ."
-     *                   endif
-     *              ENDIF
-     *              IF it first step :
-     *                  copy projectFile into image work directory: "COPY ./{projectFolderName}/{projectName} ."
-     *                  set link image to user via label :"LABEL user={login}"
-     *                  Copy script for applying user changes: "COPY ./{UtilsFolderName} ../"
-     *                  create Changes file for situation if user haven`t changes: "RUN  touch ../Changes "
-     *                  Copy user changes : "COPY ./{serResourcesFolderName}/{login}/{projectName} ../"
-     *                  apply changes : "RUN  ../{modifierScriptName}.sh ../Changes "
-     *              ENDIF
+     *FOR each  stage  :<br>
+     *___________IF not a same image  : <br>
+     *________________use baseImage  :"FROM {imageName}:{Version}"<br>
+     *________________set work directory: "WORKDIR /usr/src/{projectName}"<br>
+     *________________IF it is not  first baseImage :<br>
+     *________________    Copy project file from previous stage : "COPY --from={1} /usr/src/{projectName} ."<br>
+     *________________ENIF<br>
+     *___________ENDIF<br>
+     *___________IF it first step :<br>
+     *________________copy projectFile into image work directory: "COPY ./{projectFolderName}/{projectName} ."<br>
+     *________________set link image to user via label :"LABEL user={login}"<br>
+     *________________Copy script for applying user changes: "COPY ./{UtilsFolderName} ../"<br>
+     *________________create Changes file for situation if user haven`t changes: "RUN  touch ../Changes "<br>
+     *________________Copy user changes : "COPY ./{serResourcesFolderName}/{login}/{projectName} ../"<br>
+     *________________apply changes : "RUN  ../{modifierScriptName}.sh ../Changes "<br>
+     *___________ENDIF<br>
+     * ________________FOR each command in stage :<br>
+     * _____________________ replace special value in command "${mainClass}","${projectName}","${userLogin}"<br>
+     * _____________________ IF it is not a last command in last stage:<br>
+     * ___________________________add "Run {command}"<br>
+     * _____________________ ENDIF<br>
+     * _____________________ IF last command in last stage :<br>
+     * _________________________ IF have port list:<br>
+     * ______________________________FOR  each port :<br>
+     * ___________________________________expose port :"EXPOSE {port number}"<br>
+     * ______________________________ENDFOR<br>
+     * _________________________ ENDIF<br>
+     * _________________________ IF has exposed port<br>
+     * ______________________________add "ENTRYPOINT command"<br>
+     * _________________________ELSE<br>
+     * ______________________________add "CMD command"<br>
+     * _________________________ENDIF<br>
+     * _____________________ENDIF<br>
+     * ___________ENDFOR<br>
+     *ENDFOR<br>
      *
-     *
-     *              FOR each command in stage :
-     *                  replace special value in command "${mainClass}","${projectName}","${userLogin}"
-     *                  IF it is not a last command in last stage:
-     *                       add "Run {command}"
-     *                  ENDIF
-     *                  IF last command in last stage :
-     *                      IF have port list:
-     *                          FOR  each port :
-     *                               expose port :"EXPOSE {port number}"
-     *                          ENDFOR
-     *                      ENDIF
-     *                      IF has exposed port
-     *                           add "ENTRYPOINT command"
-     *                     ELSE
-     *                           add "CMD command"
-     *                     ENDIF
-     *                 ENDIF
-     *          ENDFOR
-     *  ENDFOR
-     * }
      * @param project project instance. Which must be launched
      * @param login user login. we need to identify which user changes must apply to project
      * @return Dockerfile instruction in {@link StringBuilder} instance
