@@ -40,12 +40,12 @@ function disconnect() {
 }
 
 function sendName() {
-    adr='/'.concat($("#name").val())
-    stompClient.send(adr, {}, $("#name").val());
+    adr='/'.concat($("#name").val()).concat("/input")
+    stompClient.send(adr, {}, $("#textInput").val());
 }
 
 function showGreeting(message) {
-    $("#greetings").append( message.replace("\n","</td></tr><tr><td>"));
+    $("#greetings").append( message.replace("\n","\\n"));
 }
 
 function showGLogs(message) {

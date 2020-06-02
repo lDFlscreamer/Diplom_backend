@@ -50,8 +50,9 @@ public class ProjectLauncher {
     public boolean inputInProject(String imageName, String input) throws NoSuchElementException {
         Process process = launchedProjects.get(imageName);
         if (process == null) {
+            webSocketWritter.sendOutput(imageName,input);
             webSocketWritter.sendOutput(imageName,GeneralConstants.NEWLINE.concat("!!! project may  not launched "));
-            logger.warn(MessageFormat.format("project with imageName  {0}  is not launched", imageName));
+            logger.warn(MessageFormat.format("project with imageName  {0}  is not launched\n", imageName));
             return false;
         }
         OutputStream stdin = process.getOutputStream();
@@ -67,7 +68,6 @@ public class ProjectLauncher {
 
     public String launchProject(Project project, String userLogin, String runCommand) throws NoSuchElementException {
         String imageName = converter.getImageName(project, userLogin);
-
         try {
             dockerfileBuilder.createDockerfile(imageName, project, userLogin);
         } catch (IOException e) {
@@ -137,8 +137,10 @@ public class ProjectLauncher {
 
     public void printPortData(String imageName){
         Map<Integer, Integer> portData = projectDetailFinder.getPortData(imageName);
-        String portStr = portData.values().stream().map(integer -> integer + "->" + integer).reduce((s, s2) -> s.concat(GeneralConstants.NEWLINE).concat(s2)).orElse(GeneralConstants.EMPTY);
-        webSocketWritter.sendOutput(imageName,MessageFormat.format("Project port are redirected:".concat(GeneralConstants.NEWLINE).concat("{0}"),portStr));
+        if (!portData.isEmpty()) {
+            String portStr = portData.values().stream().map(integer -> integer + "->" + integer).reduce((s, s2) -> s.concat(GeneralConstants.NEWLINE).concat(s2)).orElse(GeneralConstants.EMPTY);
+            webSocketWritter.sendOutput(imageName, MessageFormat.format("Project port are redirected:".concat(GeneralConstants.NEWLINE).concat("{0}"), portStr));
+        }
     }
 
 

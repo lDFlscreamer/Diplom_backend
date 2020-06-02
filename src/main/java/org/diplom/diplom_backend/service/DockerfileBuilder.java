@@ -64,23 +64,23 @@ public class DockerfileBuilder {
      *________________Copy user changes : "COPY ./{serResourcesFolderName}/{login}/{projectName} ../"<br>
      *________________apply changes : "RUN  ../{modifierScriptName}.sh ../Changes "<br>
      *___________ENDIF<br>
-     * ________________FOR each command in stage :<br>
-     * _____________________ replace special value in command "${mainClass}","${projectName}","${userLogin}"<br>
-     * _____________________ IF it is not a last command in last stage:<br>
-     * ___________________________add "Run {command}"<br>
-     * _____________________ ENDIF<br>
-     * _____________________ IF last command in last stage :<br>
-     * _________________________ IF have port list:<br>
-     * ______________________________FOR  each port :<br>
-     * ___________________________________expose port :"EXPOSE {port number}"<br>
-     * ______________________________ENDFOR<br>
-     * _________________________ ENDIF<br>
-     * _________________________ IF has exposed port<br>
-     * ______________________________add "ENTRYPOINT command"<br>
-     * _________________________ELSE<br>
-     * ______________________________add "CMD command"<br>
-     * _________________________ENDIF<br>
-     * _____________________ENDIF<br>
+     * __________FOR each command in stage :<br>
+     * _______________ replace special value in command "${mainClass}","${projectName}","${userLogin}"<br>
+     * _______________ IF it is not a last command in last stage:<br>
+     * _____________________add "Run {command}"<br>
+     * _______________ ENDIF<br>
+     * _______________ IF last command in last stage :<br>
+     * ___________________ IF have port list:<br>
+     * ________________________FOR  each port :<br>
+     * _____________________________expose port :"EXPOSE {port number}"<br>
+     * ________________________ENDFOR<br>
+     * ___________________ ENDIF<br>
+     * ___________________ IF has exposed port<br>
+     * ________________________add "ENTRYPOINT command"<br>
+     * ___________________ELSE<br>
+     * ________________________add "CMD command"<br>
+     * ___________________ENDIF<br>
+     * _______________ENDIF<br>
      * ___________ENDFOR<br>
      *ENDFOR<br>
      *

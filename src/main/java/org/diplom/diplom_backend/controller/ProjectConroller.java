@@ -114,7 +114,7 @@ public class ProjectConroller {
         return projectDetailFinder.getPortData(imageName);
     }
 
-    @MessageMapping("/{imageName}")
+    @MessageMapping("/{imageName}/input")
     public void simple(@DestinationVariable String imageName, String message) {
         try {
             projectLauncher.inputInProject(imageName, message);

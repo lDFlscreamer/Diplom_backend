@@ -6,7 +6,6 @@ import org.diplom.diplom_backend.constant.SystemConstant;
 import org.diplom.diplom_backend.entity.*;
 import org.diplom.diplom_backend.repository.BuildTemplateRepository;
 import org.diplom.diplom_backend.repository.ImageRepository;
-import org.diplom.diplom_backend.repository.LanguageRepository;
 import org.diplom.diplom_backend.repository.ProjectRepository;
 
 import org.slf4j.Logger;
@@ -35,8 +34,6 @@ public class Application {
     @Autowired
     private ImageRepository imageRepository;
     @Autowired
-    private LanguageRepository languageRepository;
-    @Autowired
     private ProjectRepository projectRepository;
     @Autowired
     private BuildTemplateRepository buildTemplateRepository;
@@ -60,7 +57,6 @@ public class Application {
                  */
                 projectRepository.deleteAll();
                 imageRepository.deleteAll();
-                languageRepository.deleteAll();
                 /*
                  * create Images
                  * */
@@ -101,29 +97,6 @@ public class Application {
                 imageRepository.save(python);
                 imageRepository.save(gcc);
                 imageRepository.save(maven);
-                /*create Language*/
-                //create java Language
-                List<Image> images = new ArrayList<>();
-                images.add(java);
-                images.add(maven);
-
-                Language javaLanguage = new Language(LanguageConstant.JAVA, images);
-                //create python Language
-                images = new ArrayList<>();
-                images.add(python);
-
-                Language pythonLanguage = new Language(LanguageConstant.PYTHON, images);
-                //create cpp Language
-                images = new ArrayList<>();
-                images.add(gcc);
-
-                Language CppLanguage = new Language(LanguageConstant.CPP, images);
-                /*
-                 * save to data base
-                 * */
-                languageRepository.save(javaLanguage);
-                languageRepository.save(pythonLanguage);
-                languageRepository.save(CppLanguage);
                 /*
                  * create building template
                  * */
