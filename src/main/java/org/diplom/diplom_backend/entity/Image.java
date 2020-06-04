@@ -30,7 +30,7 @@ public class Image {
     @Id
     private String _id;
     private String name;
-    private List<String> version;
+    private List<String> versions;
     private String executeCommand;
     private String compileCommand;
 
@@ -39,18 +39,18 @@ public class Image {
         this._id = UUID.randomUUID().toString();
     }
 
-    public Image(String name, List<String> Version, String executeCommand, String compileCommand) {
+    public Image(String name, List<String> versions, String executeCommand, String compileCommand) {
         this();
         this.name = name;
-        this.version = Version;
+        this.versions = versions;
         this.executeCommand = executeCommand;
         this.compileCommand = compileCommand;
     }
 
-    public Image(String name, List<String> Version, String executeCommand) {
+    public Image(String name, List<String> versions, String executeCommand) {
         this();
         this.name = name;
-        this.version = Version;
+        this.versions = versions;
         this.executeCommand = executeCommand;
     }
 }

@@ -31,34 +31,34 @@ public class Project {
 	private String _id;
 	private String name;//name of project
 	private String language;
-	private String path;
-	private String launchFile;
 	private String template;
+	private String launchFile;
+	private String path;
 	private String launchFilePath; //path to main file with entry point
-	private List<String> users;
-	private List<BuildStage> buildStages; // stages
 	private List<Integer> ports; //list of exposes port
+	private List<BuildStage> stages; // stages
+	private List<String> users;
 
 	public Project() {
 		this._id = UUID.randomUUID().toString();
 	}
 
-	public Project(String name, String launchFilePath, List<BuildStage> buildStages) {
+	public Project(String name, String launchFilePath, List<BuildStage> stages) {
 		this();
 		this.name = name;
 		this.launchFilePath = launchFilePath;
-		this.buildStages = buildStages;
+		this.stages = stages;
 	}
 
-	public Project(String name, String launchFilePath, List<BuildStage> buildStages, List<Integer> ports) {
+	public Project(String name, String launchFilePath, List<BuildStage> stages, List<Integer> ports) {
 		this();
 		this.name = name;
 		this.launchFilePath = launchFilePath;
-		this.buildStages = buildStages;
+		this.stages = stages;
 		this.ports = ports;
 	}
 
-	public Project(String name, String language, String path, String launchFile, String template, String launchFilePath, List<String> users, List<BuildStage> buildStages, List<Integer> ports) {
+	public Project(String name, String language, String path, String launchFile, String template, String launchFilePath, List<String> users, List<BuildStage> stages, List<Integer> ports) {
 		this();
 		this.name = name;
 		this.language = language;
@@ -67,7 +67,7 @@ public class Project {
 		this.template = template;
 		this.launchFilePath = launchFilePath;
 		this.users = users;
-		this.buildStages = buildStages;
+		this.stages = stages;
 		this.ports = ports;
 	}
 }

@@ -99,7 +99,7 @@ public class DockerfileBuilder {
         String previousImageId = null;
         int imageCounter = 0;
         int i = 0;
-        List<BuildStage> projectStages = project.getBuildStages();
+        List<BuildStage> projectStages = project.getStages();
 
         for (BuildStage stage : projectStages) {
             String line;

@@ -14,9 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -50,10 +48,10 @@ public class DockerfileBuilderTest {
         List<BuildStage> buildStages = new ArrayList<>();
         List<String> commands = new ArrayList<>();
         commands.add(maven.getCompileCommand());
-        buildStages.add(new BuildStage(maven, maven.getVersion().get(0), commands));
+        buildStages.add(new BuildStage(maven, maven.getVersions().get(0), commands));
         commands = new ArrayList<>();
         commands.add(maven.getExecuteCommand());
-        buildStages.add(new BuildStage(maven, maven.getVersion().get(0), commands));
+        buildStages.add(new BuildStage(maven, maven.getVersions().get(0), commands));
         BuildTemplate mavenApplication = new BuildTemplate("mavenApplication", LanguageConstant.JAVA, buildStages);
         ArrayList<Integer> ports = new ArrayList<>();
         ports.add(8080);
