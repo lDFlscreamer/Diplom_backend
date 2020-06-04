@@ -24,9 +24,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "/project")
-public class ProjectConroller {
+public class ProjectController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProjectConroller.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
     @Autowired
     ProjectRepository projectRepository;
     @Autowired
@@ -115,7 +115,7 @@ public class ProjectConroller {
     }
 
     @MessageMapping("/{imageName}/input")
-    public void simple(@DestinationVariable String imageName, String message) {
+    public void inputInProject(@DestinationVariable String imageName, String message) {
         try {
             projectLauncher.inputInProject(imageName, message);
         } catch (NoSuchElementException e) {
@@ -131,11 +131,8 @@ public class ProjectConroller {
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     public void logOut(
             @RequestBody Map<String, Object> args) throws NoSuchElementException {
-        Object projectIdObj = args.get("projectId");
         Object userLoginObj = args.get("userLogin");
-        Object inputObj = args.get("input");
 
-        String projectId = projectIdObj.toString();
         String userLogin = userLoginObj.toString();
         dockerCleaner.removeImages(userLogin);
     }

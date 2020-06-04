@@ -21,7 +21,7 @@ public class ProjectLauncher {
     @Autowired
     private SystemConstant systemConstant;
     @Autowired
-    private WebSocketWritter webSocketWritter;
+    private WebSocketWriter webSocketWriter;
     @Autowired
     private Converter converter;
     @Autowired
@@ -29,7 +29,7 @@ public class ProjectLauncher {
     @Autowired
     private DockerfileBuilder dockerfileBuilder;
     @Autowired
-    private DockerImageCreater dockerImageCreater;
+    private DockerImageCreator dockerImageCreator;
 
 
     public void addLaunchedProject(String imageName, Process p) {
@@ -50,8 +50,8 @@ public class ProjectLauncher {
     public boolean inputInProject(String imageName, String input) throws NoSuchElementException {
         Process process = launchedProjects.get(imageName);
         if (process == null) {
-            webSocketWritter.sendOutput(imageName,input);
-            webSocketWritter.sendOutput(imageName,GeneralConstants.NEWLINE.concat("!!! project may  not launched "));
+            webSocketWriter.sendOutput(imageName,input);
+            webSocketWriter.sendOutput(imageName,GeneralConstants.NEWLINE.concat("!!! project may  not launched "));
             logger.warn(MessageFormat.format("project with imageName  {0}  is not launched\n", imageName));
             return false;
         }
@@ -74,10 +74,10 @@ public class ProjectLauncher {
             logger.warn(MessageFormat.format("cant  create dockerfile for  launch project with ImageName {0} ", imageName), e);
             return null;
         }
-        if (!dockerImageCreater.createImage(imageName, systemConstant.getPath().concat(systemConstant.getDockerfileFolderName().concat(GeneralConstants.SLASH)).concat(imageName), systemConstant.getPath())) {
+        if (!dockerImageCreator.createImage(imageName, systemConstant.getPath().concat(systemConstant.getDockerfileFolderName().concat(GeneralConstants.SLASH)).concat(imageName), systemConstant.getPath())) {
             return null;//todo:message
         }
-        Process process = dockerImageCreater.runImage(imageName, runCommand);
+        Process process = dockerImageCreator.runImage(imageName, runCommand);
         addLaunchedProject(imageName, process);
         printPortData(imageName);
         return imageName;
@@ -125,11 +125,11 @@ public class ProjectLauncher {
 
                 String lastOutput = "end with" + p.exitValue() + GeneralConstants.NEWLINE;
                 toTerminate.add(s.getKey());
-                webSocketWritter.sendOutput(GeneralConstants.SLASH.concat(s.getKey()), lastOutput);
+                webSocketWriter.sendOutput(GeneralConstants.SLASH.concat(s.getKey()), lastOutput);
                 return;
             }
             if (!result.toString().equals(GeneralConstants.EMPTY)) {
-                webSocketWritter.sendOutput(GeneralConstants.SLASH.concat(s.getKey()), result.toString());
+                webSocketWriter.sendOutput(GeneralConstants.SLASH.concat(s.getKey()), result.toString());
             }
         });
         toTerminate.stream().parallel().forEach(this::terminateProcess);
@@ -139,7 +139,7 @@ public class ProjectLauncher {
         Map<Integer, Integer> portData = projectDetailFinder.getPortData(imageName);
         if (!portData.isEmpty()) {
             String portStr = portData.values().stream().map(integer -> integer + "->" + integer).reduce((s, s2) -> s.concat(GeneralConstants.NEWLINE).concat(s2)).orElse(GeneralConstants.EMPTY);
-            webSocketWritter.sendOutput(imageName, MessageFormat.format("Project port are redirected:".concat(GeneralConstants.NEWLINE).concat("{0}"), portStr));
+            webSocketWriter.sendOutput(imageName, MessageFormat.format("Project port are redirected:".concat(GeneralConstants.NEWLINE).concat("{0}"), portStr));
         }
     }
 

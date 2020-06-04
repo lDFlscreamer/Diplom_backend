@@ -20,12 +20,12 @@ import java.util.List;
  * @see ProjectLauncher
  */
 @Service
-public class DockerImageCreater {
-    private static final Logger logger = LoggerFactory.getLogger(DockerImageCreater.class);
+public class DockerImageCreator {
+    private static final Logger logger = LoggerFactory.getLogger(DockerImageCreator.class);
     @Autowired
     private Terminal terminal;
     @Autowired
-    private WebSocketWritter webSocketWritter;
+    private WebSocketWriter webSocketWriter;
 
 
     /**
@@ -54,8 +54,8 @@ public class DockerImageCreater {
             isOk = false;
         }
         if (!isOk)
-            webSocketWritter.sendOutput(GeneralConstants.SLASH.concat(name), String.join(GeneralConstants.NEWLINE, outputFromProcess));
-        webSocketWritter.sendLogs(GeneralConstants.SLASH.concat(name), String.join(GeneralConstants.NEWLINE, outputFromProcess));
+            webSocketWriter.sendOutput(GeneralConstants.SLASH.concat(name), String.join(GeneralConstants.NEWLINE, outputFromProcess));
+        webSocketWriter.sendLogs(GeneralConstants.SLASH.concat(name), String.join(GeneralConstants.NEWLINE, outputFromProcess));
         return isOk;
     }
 

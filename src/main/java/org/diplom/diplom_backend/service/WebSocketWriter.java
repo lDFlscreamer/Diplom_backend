@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * @author Tverdokhlib
  */
 @Service
-public class WebSocketWritter {
+public class WebSocketWriter {
     @Autowired
     private SimpMessagingTemplate template;
 
@@ -21,7 +21,7 @@ public class WebSocketWritter {
      * @param typeOfMessage uses for
      * @param payload data which will be send to socket
      */
-    public  void send(String imageName,String typeOfMessage,Object payload){
+    public  void send(String imageName, String typeOfMessage, Object payload){
         String adr = "/".concat(imageName);
         if (!typeOfMessage.isEmpty()){
             adr=adr.concat("/").concat(typeOfMessage);
@@ -31,20 +31,20 @@ public class WebSocketWritter {
 
 
     /***
-     * send {@code payload}  to address {@code imagename/} via socket
-     * @param imagename identifier of launched project
+     * send {@code payload}  to address {@code imageName/} via socket
+     * @param imageName identifier of launched project
      * @param payload data for send
      */
-    public void sendOutput(String imagename,Object payload){
-        send(imagename,"",payload);
+    public void sendOutput(String imageName,Object payload){
+        send(imageName,"",payload);
     }
 
     /**
-     * send {@code payload}  to address {@code imagename/logs} via socket
-     * @param imagename identifier of launched project
+     * send {@code payload}  to address {@code imageName/logs} via socket
+     * @param imageName identifier of launched project
      * @param payload data for send
      */
-    public void sendLogs(String imagename,Object payload){
-        send(imagename,"logs",payload);
+    public void sendLogs(String imageName,Object payload){
+        send(imageName,"logs",payload);
     }
 }

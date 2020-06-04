@@ -18,7 +18,7 @@ public class BuildTemplateController {
 
     @GetMapping(value = "/{Language}")
     @ResponseStatus(value = HttpStatus.FOUND)
-    public Iterable<BuildTemplate> getTemplateByLangugae(@PathVariable("Language") String language){
+    public List<BuildTemplate> getTemplateByLanguage(@PathVariable("Language") String language){
        return buildTemplateRepository.findByLanguage(language);
     }
 

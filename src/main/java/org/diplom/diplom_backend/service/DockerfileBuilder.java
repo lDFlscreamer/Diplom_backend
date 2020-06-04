@@ -41,7 +41,7 @@ public class DockerfileBuilder {
      */
     public void createDockerfile(String filename, Project project,String login) throws IOException {
         StringBuilder dockerFileContent = createDockerfileContent(project,login);
-        writeTofile(filename, dockerFileContent);
+        writeToFile(filename, dockerFileContent);
     }
 
 
@@ -167,7 +167,7 @@ public class DockerfileBuilder {
      *
      * @see Converter
      */
-    public void writeTofile(String filename, StringBuilder dockerfileContent) throws IOException {
+    public void writeToFile(String filename, StringBuilder dockerfileContent) throws IOException {
 
         String path = systemConstant.getPath().concat(systemConstant.getDockerfileFolderName().concat(GeneralConstants.SLASH)).concat(filename);
         File dockerFile = new File(path);

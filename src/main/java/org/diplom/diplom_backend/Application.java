@@ -55,7 +55,7 @@ public class Application {
                 /*
                 drop all collection
                  */
-                projectRepository.deleteAll();
+                buildTemplateRepository.deleteAll();
                 imageRepository.deleteAll();
                 /*
                  * create Images

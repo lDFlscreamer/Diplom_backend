@@ -10,7 +10,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  * configuration file for web socket
  *
  * @author Tverdokhlib
- * @see org.diplom.diplom_backend.service.WebSocketWritter
+ * @see org.diplom.diplom_backend.service.WebSocketWriter
  */
 @Configuration
 @EnableWebSocketMessageBroker
@@ -24,7 +24,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/diplom").withSockJS(); //todo:rename
+		registry.addEndpoint("/diplom").setAllowedOrigins("*").withSockJS();
 	}
 
 
