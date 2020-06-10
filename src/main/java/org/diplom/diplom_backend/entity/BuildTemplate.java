@@ -3,6 +3,7 @@ package org.diplom.diplom_backend.entity;
 import lombok.Data;
 import org.diplom.diplom_backend.constant.LanguageConstant;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import java.util.UUID;
  * @see BuildTemplate
  */
 @Data
+@Document(collection = "BuildTemplate")
 public class BuildTemplate {
     @Id
     private String _id;

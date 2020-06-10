@@ -92,7 +92,6 @@ public class DockerfileBuilder {
      * @see org.diplom.diplom_backend.entity.Image
      */
     public StringBuilder createDockerfileContent(Project project,String login) {
-        //todo:add user part
         StringBuilder dockerFileContent = new StringBuilder();
         boolean isInitialized = false;
         boolean hasExposedPort = false;
@@ -120,11 +119,11 @@ public class DockerfileBuilder {
 
                 line=MessageFormat.format("COPY ./{0} ../ ", systemConstant.getUtilsFolderName());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
-                line= MessageFormat.format( "RUN  touch ../Changes ", systemConstant.getModifierScriptName());
+                line= MessageFormat.format( "RUN  touch ../{0} ", systemConstant.getChangesFilename());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 line = MessageFormat.format("COPY ./{1}/{0}/{2} ../ ", login, systemConstant.getUserResourcesFolderName(),project.getName());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
-                line= MessageFormat.format( "RUN  ../{0}.sh ../Changes ", systemConstant.getModifierScriptName());
+                line= MessageFormat.format( "RUN  ../{0}.sh ../{1}", systemConstant.getModifierScriptName(),systemConstant.getChangesFilename());
                 dockerFileContent.append(line).append(GeneralConstants.NEWLINE);
                 isInitialized = true;
             }

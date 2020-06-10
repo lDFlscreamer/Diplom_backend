@@ -146,7 +146,7 @@ public class Application {
                  * create test project
                  * //todo:delete on production
                  * */
-                Project helloWord = new Project("helloWord", "Main", javaApplication.getStages());
+                Project helloWord = new Project("helloWorld", "Main", javaApplication.getStages());
                 Project pythonInput = new Project("pythonInput", "main", pythonApplication.getStages());
                 ArrayList<Integer> ports = new ArrayList<>();
                 ports.add(8080);

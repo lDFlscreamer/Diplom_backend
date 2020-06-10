@@ -37,6 +37,12 @@ public class SystemConstant {
     @Value("${path.directory.utils.folder.name:Utils}")
     private  String UtilsFolderName;
     /**
+     * folder name which will be contains all utils bash script
+     */
+    @Getter
+    @Value("${userResources.changes.file.name:Changes.txt}")
+    private  String changesFilename;
+    /**
      * script name of modifier project
      */
     @Getter
