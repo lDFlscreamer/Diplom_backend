@@ -20,29 +20,29 @@ import java.util.UUID;
  * @see BuildTemplate
  */
 @Data
-@Document(collection = "BuildTemplate")
+@Document(collection = "buildTemplate")
 public class BuildTemplate {
-    @Id
-    private String _id;
-    private String templateName;
-    private String language;
-    private List<BuildStage> stages;
+	@Id
+	private String _id;
+	private String templateName;
+	private String language;
+	private List<BuildStage> stages;
 
-    public BuildTemplate() {
-        this._id = UUID.randomUUID().toString();
-    }
+	public BuildTemplate() {
+		this._id = UUID.randomUUID().toString();
+	}
 
-    public BuildTemplate(String templateName, String language, List<BuildStage> stages) {
-        this();
-        this.templateName = templateName;
-        this.language = language;
-        this.stages = stages;
-    }
+	public BuildTemplate(String templateName, String language, List<BuildStage> stages) {
+		this();
+		this.templateName = templateName;
+		this.language = language;
+		this.stages = stages;
+	}
 
-    public BuildTemplate(String templateName, LanguageConstant language, List<BuildStage> stages) {
-        this();
-        this.templateName = templateName;
-        this.language = language.toString();
-        this.stages = stages;
-    }
+	public BuildTemplate(String templateName, LanguageConstant language, List<BuildStage> stages) {
+		this();
+		this.templateName = templateName;
+		this.language = language.toString();
+		this.stages = stages;
+	}
 }

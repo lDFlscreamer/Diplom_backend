@@ -26,114 +26,110 @@ import java.util.Optional;
 @RequestMapping(value = "/project")
 public class ProjectController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
-    @Autowired
-    ProjectRepository projectRepository;
-    @Autowired
-    private Converter converter;
-    @Autowired
-    private ProjectLauncher projectLauncher;
-    @Autowired
-    private ProjectDAO projectDao;
-    @Autowired
-    private ProjectDetailFinder projectDetailFinder;
+	private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
+	@Autowired
+	ProjectRepository projectRepository;
+	@Autowired
+	DockerCleaner dockerCleaner;
+	@Autowired
+	private Converter converter;
+	@Autowired
+	private ProjectLauncher projectLauncher;
+	@Autowired
+	private ProjectDAO projectDao;
+	@Autowired
+	private ProjectDetailFinder projectDetailFinder;
 
+	@GetMapping(value = "/{Name}")
+	@ResponseStatus(value = HttpStatus.FOUND)
+	public Project getProjectByName(@PathVariable("Name") String name) {
+		Optional<Project> byProjectName = projectRepository.findByName(name);
+		return byProjectName.orElse(null);
+	}
 
-    @GetMapping(value = "/{Name}")
-    @ResponseStatus(value = HttpStatus.FOUND)
-    public Project getProjectByName(@PathVariable("Name") String name) {
-        Optional<Project> byProjectName = projectRepository.findByName(name);
-        return byProjectName.orElse(null);
-    }
+	@GetMapping
+	@ResponseStatus(value = HttpStatus.FOUND)
+	public List<Project> findAll() {
+		return projectRepository.findAll();
+	}
 
-    @GetMapping
-    @ResponseStatus(value = HttpStatus.FOUND)
-    public List<Project> findAll() {
-        return projectRepository.findAll();
-    }
+	@PutMapping(
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public Project createProject(@RequestBody Project project) {
+		Optional<Project> byProjectNameAndMainClass = projectRepository.findByNameAndLaunchFilePath(project.getName(), project.getLaunchFilePath());
+		return byProjectNameAndMainClass.orElseGet(() -> projectRepository.save(project));
+	}
 
-    @PutMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.CREATED)
-    public Project createProject(@RequestBody Project project) {
-        Optional<Project> byProjectNameAndMainClass = projectRepository.findByNameAndLaunchFilePath(project.getName(), project.getLaunchFilePath());
-        return byProjectNameAndMainClass.orElseGet(() -> projectRepository.save(project));
-    }
+	@PostMapping(value = "/execute",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE
+	)
+	@ResponseStatus(value = HttpStatus.ACCEPTED)
+	public String executeProject(
+			@RequestBody Map<String, Object> args) {
+		Map projectIdMap = (Map) args.get("projectId");
+		Object userLoginObj = args.get("userLogin");
+		Object runCommandObj = args.get("runCommand");
 
-    @PostMapping(value = "/execute",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public String executeProject(
-            @RequestBody Map<String, Object> args) {
-        Object projectIdObj = args.get("projectId");
-        Object userLoginObj = args.get("userLogin");
-        Object runCommandObj = args.get("runCommand");
+		String userLogin = userLoginObj.toString();
 
-        String projectId = projectIdObj.toString();
-        String userLogin = userLoginObj.toString();
+		Project project = projectDao.getProjectByMapId(projectIdMap);
+		return projectLauncher.launchProject(project, userLogin, runCommandObj == null ? null : runCommandObj.toString());
+	}
 
-        Project project = projectDao.getProjectById(projectId);
-        return projectLauncher.launchProject(project, userLogin, runCommandObj == null ? null : runCommandObj.toString());
-    }
+	@PostMapping(value = "/stop",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE
+	)
+	@ResponseStatus(value = HttpStatus.ACCEPTED)
+	public String stopLaunchedProject(
+			@RequestBody Map<String, Object> args) throws NoSuchElementException {
+		Map projectIdMap = (Map) args.get("projectId");
+		Object userLoginObj = args.get("userLogin");
 
-    @PostMapping(value = "/stop",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public String stopLaunchedProject(
-            @RequestBody Map<String, Object> args) throws NoSuchElementException {
-        Object projectIdObj = args.get("projectId");
-        Object userLoginObj = args.get("userLogin");
+		String userLogin = userLoginObj.toString();
+		Project project = projectDao.getProjectByMapId(projectIdMap);
 
-        String projectId = projectIdObj.toString();
-        String userLogin = userLoginObj.toString();
+		return projectLauncher.stopProject(project, userLogin) ? "DONE" : "FAIL";
+	}
 
-        Project project = projectDao.getProjectById(projectId);
+	@PostMapping(value = "/port",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE
+	)
+	@ResponseStatus(value = HttpStatus.ACCEPTED)
+	public Map<Integer, Integer> PortLaunchedProject(
+			@RequestBody Map<String, Object> args) throws NoSuchElementException {
+		Map projectIdMap = (Map) args.get("projectId");
+		Object userLoginObj = args.get("userLogin");
 
-        return projectLauncher.stopProject(project, userLogin) ? "DONE" : "FAIL";
-    }
+		String userLogin = userLoginObj.toString();
+		Project project = projectDao.getProjectByMapId(projectIdMap);
+		String imageName = converter.getImageName(project, userLogin);
+		return projectDetailFinder.getPortData(imageName);
+	}
 
-    @PostMapping(value = "/port",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public Map<Integer, Integer> PortLaunchedProject(
-            @RequestBody Map<String, Object> args) throws NoSuchElementException {
-        Object projectIdObj = args.get("projectId");
-        Object userLoginObj = args.get("userLogin");
+	@MessageMapping("/{imageName}/input")
+	public void inputInProject(@DestinationVariable String imageName, String message) {
+		try {
+			projectLauncher.inputInProject(imageName, message);
+		} catch (NoSuchElementException e) {
+			logger.info(MessageFormat.format("can not input {1} .Because Project with imageName {0} may not be launched", imageName, message));
+		}
+	}
 
-        String projectId = projectIdObj.toString();
-        String userLogin = userLoginObj.toString();
-        Project project = projectDao.getProjectById(projectId);
-        String imageName = converter.getImageName(project, userLogin);
-        return projectDetailFinder.getPortData(imageName);
-    }
+	@PostMapping(value = "/logOut",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
+			produces = MediaType.APPLICATION_JSON_VALUE
+	)
+	@ResponseStatus(value = HttpStatus.ACCEPTED)
+	public void logOut(
+			@RequestBody Map<String, Object> args) throws NoSuchElementException {
+		Object userLoginObj = args.get("userLogin");
 
-    @MessageMapping("/{imageName}/input")
-    public void inputInProject(@DestinationVariable String imageName, String message) {
-        try {
-            projectLauncher.inputInProject(imageName, message);
-        } catch (NoSuchElementException e) {
-            logger.info(MessageFormat.format("can not input {1} .Because Project with imageName {0} may not be launched", imageName, message));
-        }
-    }
-
-    @Autowired DockerCleaner dockerCleaner;
-    @PostMapping(value = "/logOut",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public void logOut(
-            @RequestBody Map<String, Object> args) throws NoSuchElementException {
-        Object userLoginObj = args.get("userLogin");
-
-        String userLogin = userLoginObj.toString();
-        dockerCleaner.removeImages(userLogin);
-    }
+		String userLogin = userLoginObj.toString();
+		dockerCleaner.removeImages(userLogin);
+	}
 }

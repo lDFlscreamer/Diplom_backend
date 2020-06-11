@@ -1,13 +1,12 @@
 package org.diplom.diplom_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-import java.util.UUID;
 
 
 /**
@@ -29,7 +28,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Project {
 	@Id
-	private String _id;
+	private ObjectId _id;
 	private String name;//name of project
 	private String language;
 	private String template;
@@ -41,7 +40,7 @@ public class Project {
 	private List<String> users;
 
 	public Project() {
-		this._id = UUID.randomUUID().toString();
+		this._id = ObjectId.get();
 	}
 
 	public Project(String name, String launchFilePath, List<BuildStage> stages) {
