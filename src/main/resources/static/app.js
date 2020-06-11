@@ -45,11 +45,11 @@ function sendName() {
 }
 
 function showGreeting(message) {
-    $("#greetings").append( message.replace("\n","\\n"));
+    $("#outputText").append( message.replace("\n","\\n"));
 }
 
 function showGLogs(message) {
-    $("#logs").append( message.replace("\n","<br>"));
+ //   $("#logs").append( message.replace("\n","<br>"));
 }
 
 $(function () {
