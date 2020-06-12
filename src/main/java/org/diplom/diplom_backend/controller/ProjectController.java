@@ -69,13 +69,14 @@ public class ProjectController {
 	@ResponseStatus(value = HttpStatus.ACCEPTED)
 	public String executeProject(
 			@RequestBody Map<String, Object> args) {
-		Map projectIdMap = (Map) args.get("projectId");
+		Object projectIdObj = args.get("projectId");
 		Object userLoginObj = args.get("userLogin");
 		Object runCommandObj = args.get("runCommand");
 
+		String projectId = projectIdObj.toString();
 		String userLogin = userLoginObj.toString();
 
-		Project project = projectDao.getProjectByMapId(projectIdMap);
+		Project project = projectDao.getProjectByStringId(projectId);
 		return projectLauncher.launchProject(project, userLogin, runCommandObj == null ? null : runCommandObj.toString());
 	}
 
@@ -86,11 +87,12 @@ public class ProjectController {
 	@ResponseStatus(value = HttpStatus.ACCEPTED)
 	public String stopLaunchedProject(
 			@RequestBody Map<String, Object> args) throws NoSuchElementException {
-		Map projectIdMap = (Map) args.get("projectId");
+		Object projectIdObj = args.get("projectId");
 		Object userLoginObj = args.get("userLogin");
 
+		String projectId = projectIdObj.toString();
 		String userLogin = userLoginObj.toString();
-		Project project = projectDao.getProjectByMapId(projectIdMap);
+		Project project = projectDao.getProjectByStringId(projectId);
 
 		return projectLauncher.stopProject(project, userLogin) ? "DONE" : "FAIL";
 	}
@@ -102,11 +104,12 @@ public class ProjectController {
 	@ResponseStatus(value = HttpStatus.ACCEPTED)
 	public Map<Integer, Integer> PortLaunchedProject(
 			@RequestBody Map<String, Object> args) throws NoSuchElementException {
-		Map projectIdMap = (Map) args.get("projectId");
+		Object projectIdObj = args.get("projectId");
 		Object userLoginObj = args.get("userLogin");
 
+		String projectId = projectIdObj.toString();
 		String userLogin = userLoginObj.toString();
-		Project project = projectDao.getProjectByMapId(projectIdMap);
+		Project project = projectDao.getProjectByStringId(projectId);
 		String imageName = converter.getImageName(project, userLogin);
 		return projectDetailFinder.getPortData(imageName);
 	}

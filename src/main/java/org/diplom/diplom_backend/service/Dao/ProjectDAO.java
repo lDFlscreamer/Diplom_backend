@@ -48,12 +48,8 @@ public class ProjectDAO {
 	 * @throws NoSuchElementException throw if project with {@code id} not found
 	 * @see Project
 	 */
-	public Project getProjectByMapId(Map id) throws NoSuchElementException {
-		Integer processIdentifier = (Integer) id.get("processIdentifier");
-		ObjectId projectId = new ObjectId((int) id.get("timestamp"),
-				(int) id.get("machineIdentifier"),
-				(short) processIdentifier.intValue(),
-				(int) id.get("counter"));
+	public Project getProjectByStringId(String id) throws NoSuchElementException {
+		ObjectId projectId = new ObjectId(id);
 		return getProjectById(projectId);
 	}
 
