@@ -69,13 +69,13 @@ public class Application {
                 version.add("9");
                 version.add("8");
                 version.add("7");
-                Image java = new Image("openjdk", version, "java -cp ./target ${mainClass}", "javac -sourcepath ./src -d target $(echo ${mainClass} | tr / .).java");
+                Image java = new Image("openjdk", version, "java -cp ./target ${mainClass}", "javac -sourcepath ./src -d target $(echo ${mainClass} | tr / .)");
                 //create python Image
                 version = new ArrayList<>();
                 version.add("3");
                 version.add("2.7");
                 version.add("2");
-                Image python = new Image("python", version, "python ${mainClass}.py");
+                Image python = new Image("python", version, "python ${mainClass}");
                 //create gcc Image
                 version = new ArrayList<>();
                 version.add("9");
@@ -146,14 +146,17 @@ public class Application {
                  * create test project
                  * //todo:delete on production
                  * */
-                Project helloWord = new Project("helloWorld", "Main", javaApplication.getStages());
-                Project pythonInput = new Project("pythonInput", "main", pythonApplication.getStages());
+                Project helloWord = new Project("helloWorld", "Main.java", javaApplication.getStages());
+                Project pythonInput = new Project("pythonInput", "main.py", pythonApplication.getStages());
                 ArrayList<Integer> ports = new ArrayList<>();
                 ports.add(8080);
-                Project mavenWord = new Project("test", "org/test/Application", mavenApplication.getStages(), ports);
+                Project mavenWord = new Project("test", "org/test/Application.java", mavenApplication.getStages(), ports);
+                ports = new ArrayList<>();
+                Project cpp = new Project("cpp", "main.cpp", CppApplication.getStages(), ports);
                 projectRepository.save(helloWord);
                 projectRepository.save(mavenWord);
                 projectRepository.save(pythonInput);
+                projectRepository.save(cpp);
             }
 
             /*
