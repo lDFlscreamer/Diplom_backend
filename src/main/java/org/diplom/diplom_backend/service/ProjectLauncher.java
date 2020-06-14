@@ -135,12 +135,13 @@ public class ProjectLauncher {
         toTerminate.stream().parallel().forEach(this::terminateProcess);
     }
 
-    public void printPortData(String imageName){
+    public Map<Integer, Integer> printPortData(String imageName){
         Map<Integer, Integer> portData = projectDetailFinder.getPortData(imageName);
         if (!portData.isEmpty()) {
             String portStr = portData.values().stream().map(integer -> integer + "->" + integer).reduce((s, s2) -> s.concat(GeneralConstants.NEWLINE).concat(s2)).orElse(GeneralConstants.EMPTY);
             webSocketWriter.sendOutput(imageName, MessageFormat.format("Project port are redirected:".concat(GeneralConstants.NEWLINE).concat("{0}"), portStr));
         }
+        return portData;
     }
 
 

@@ -111,7 +111,7 @@ public class ProjectController {
 		String userLogin = userLoginObj.toString();
 		Project project = projectDao.getProjectByStringId(projectId);
 		String imageName = converter.getImageName(project, userLogin);
-		return projectDetailFinder.getPortData(imageName);
+		return projectLauncher.printPortData(imageName);
 	}
 
 	@MessageMapping("/{imageName}/input")
